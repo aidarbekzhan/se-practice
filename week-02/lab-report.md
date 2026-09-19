@@ -171,21 +171,24 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 
 | # | Call | Required | A | B | C | D |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | | | | |
-| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | | | | |
-| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | | | | |
-| 4 | `analyze_marks([], 50)` | raises ValueError | | | | |
-| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | | | | |
-| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | | | | |
-| | **Totals** | | /6 | /6 | /6 | /6 |
+| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | PASS | PASS | PASS |
+| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | PASS | PASS | PASS |
+| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | PASS | PASS | PASS |
+| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| | **Totals** | | 0/6 | 6/6 | 6/6 | 6/6 |
 
 **For every FAIL and ERROR above, one line: what was returned or raised instead.**
 
 | Prompt | Case | What actually happened |
 | --- | --- | --- |
-| | | |
-| | | |
-| | | |
+| A | 1 | ERROR: module defines no callable named 'analyze_marks' (defined 'analyze_student_marks') |
+| A | 2 | ERROR: module defines no callable named 'analyze_marks' (defined 'analyze_student_marks') |
+| A | 3 | ERROR: module defines no callable named 'analyze_marks' (defined 'analyze_student_marks') |
+| A | 4 | ERROR: module defines no callable named 'analyze_marks' (defined 'analyze_student_marks') |
+| A | 5 | ERROR: module defines no callable named 'analyze_marks' (defined 'analyze_student_marks') |
+| A | 6 | ERROR: module defines no callable named 'analyze_marks' (defined 'analyze_student_marks') |
 
 ### Pasted terminal output — all four runs
 
@@ -195,25 +198,119 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 **Prompt A**
 
 ```
-
+ERROR: code\prompt_a.py defines no callable named 'analyze_marks'.
+All six cases count as ERROR. Record that in lab-report.md.
 ```
 
 **Prompt B**
 
 ```
-
+========================================================================
+analyze_marks harness — code/prompt_b.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.66666666666666
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: The marks list cannot be empty.
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: Invalid non-numeric mark found: 60
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: Mark out of valid range (0-100): -1
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (code/prompt_b.py)
+========================================================================
 ```
 
 **Prompt C**
 
 ```
-
+========================================================================
+analyze_marks harness — code/prompt_c.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.67
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: Marks collection cannot be empty.
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: Non-numeric mark encountered: 60
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: Mark out of valid range (0-100): -1
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (code/prompt_c.py)
+========================================================================
 ```
 
 **Prompt D**
 
 ```
-
+========================================================================
+analyze_marks harness — code/prompt_d.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.67
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: marks cannot be empty
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: Invalid non-numeric mark: 60
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: Mark out of range [0, 100]: -1
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (code/prompt_d.py)
+========================================================================
 ```
 
 ---
@@ -224,16 +321,17 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 
 | Criterion | A | B | C | D |
 | --- | --- | --- | --- | --- |
-| Correctness (cases passed) | | | | |
-| Requirement coverage | | | | |
-| Verifiability (tests) | | | | |
-| Assumptions stated | | | | |
-| Noise (2 = none) | | | | |
-| **Total / 10** | | | | |
+| Correctness (cases passed) | 0 | 2 | 2 | 2 |
+| Requirement coverage | 0 | 2 | 2 | 2 |
+| Verifiability (tests) | 0 | 0 | 2 | 1 |
+| Assumptions stated | 0 | 0 | 2 | 2 |
+| Noise (2 = none) | 0 | 1 | 1 | 2 |
+| **Total / 10** | **0** | **5** | **9** | **9** |
 
-**Prompt length, in words:** A ____ · B ____ · C ____ · D ____
+**Prompt length, in words:** A 7 · B 44 · C 84 · D 191
 
 **Words added per point gained** — B over A, C over B, D over C. One line on what that ratio says:
+B over A gained 5 points for 37 words (7.4 words/pt); C over B gained 4 points for 40 words (10.0 words/pt); D over C maintained peak score while adding 107 words to engineer production type safety and eliminate noise. The ratio demonstrates high initial returns for basic structural contracts, followed by diminishing score returns where additional words buy essential defensive robustness rather than easy rubric points.
 
 ---
 
@@ -246,13 +344,10 @@ changed verdict; (3) what was pure noise; (4) the ambiguity and your resolution.
 Name test cases and real returned values. "More detailed prompts work better" scores zero.
 
 ```
-(150–200 words)
-
-
-
+Prompt D scored highest overall and represents the exact specification format I would use at work because it establishes unambiguous contracts, eliminates conversational noise, and prevents defensive edge-case defects. The single addition that bought the most correctness was providing the explicit function signature and validation contract in Prompt B: in Prompt A, all six cases crashed with ERROR because the model arbitrarily generated analyze_student_marks(marks) with no analyze_marks callable. Moving from A to B immediately turned all cases into PASS. The worked example in Prompt C added noticeable noise—generating redundant narrative explanations and unrequested unit tests that merely verified the author's own circular assumptions. The critical ambiguity lay in floating-point precision and percentage conventions: Case 1 expected pass_rate: 66.67, but Prompt B returned raw unrounded float 66.66666666666666, which only passed due to test tolerance. In Prompt D, I resolved this by explicitly defining pass_rate as a percentage on a 0–100 scale rounded to two decimal places (round(val, 2)), while explicitly forbidding Python's boolean type inheritance trap (isinstance(x, bool)).
 ```
 
-**Word count:**
+**Word count:** 167
 
 ---
 
@@ -260,5 +355,5 @@ Name test cases and real returned values. "More detailed prompts work better" sc
 
 Written before class, answered in class.
 
-1.
-2.
+1. How should engineering teams balance prompt verbosity (to eliminate subtle edge cases like Python's `bool` subclassing `int`) against prompt token cost and maintainability in large automated code-generation pipelines?
+2. When evaluating LLM-generated code in production CI/CD, should tests rely on loose numerical tolerances (e.g. `abs(a - b) <= 0.01`) or enforce strict type and formatting contracts to prevent downstream serialization discrepancies?

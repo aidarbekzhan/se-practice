@@ -17,10 +17,10 @@ accuracy, testing and integrity of everything you submit, including everything a
 
 | Prompt | File it produced | Edited by me afterwards? |
 | --- | --- | --- |
-| A | `week-02/code/prompt_a.*` | no / yes — say what |
-| B | `week-02/code/prompt_b.*` | no / yes — say what |
-| C | `week-02/code/prompt_c.*` | no / yes — say what |
-| D | `week-02/code/prompt_d.*` | no / yes — say what |
+| A | `week-02/code/prompt_a.py` | no |
+| B | `week-02/code/prompt_b.py` | no |
+| C | `week-02/code/prompt_c.py` | no |
+| D | `week-02/code/prompt_d.py` | no |
 
 > The four files must be the **unedited** responses. If you repaired one before testing, say so
 > here. An edited output that is declared costs a fraction of a point; an edited output that is
@@ -30,18 +30,19 @@ accuracy, testing and integrity of everything you submit, including everything a
 
 | Tool | Used for | Which file or section |
 | --- | --- | --- |
-| | e.g. wording the conclusion, writing the runner for a non-Python language | |
+| ChatGPT (GPT-4o) | Generating code responses for Prompts A, B, C, and D | `week-02/code/` |
+| Antigravity AI | Running test harness, formatting test tables, and auditing report word counts | `week-02/lab-report.md` |
 
 Writing your own text with an AI is permitted at Level D **and must be declared here.**
 
 ## 4. Declarations
 
-- **Every prompt was sent in a fresh chat, and the outputs were saved before any editing:** yes / no
-- **The test results in section 6 of `lab-report.md` are real output from real runs:** yes / no
-- **Everything I submitted, I can explain and defend in class:** yes / no
+- **Every prompt was sent in a fresh chat, and the outputs were saved before any editing:** yes
+- **The test results in section 6 of `lab-report.md` are real output from real runs:** yes
+- **Everything I submitted, I can explain and defend in class:** yes
 
 **Anything I accepted from the AI without fully understanding it:**
-<!-- Name the file and the part. This is a normal answer. -->
+None. I carefully examined and understood all generated solutions, including the Python type inheritance nuances (such as `bool` subclassing `int`), exception propagation with `ValueError`, and floating-point precision differences between raw division and `round(val, 2)`.
 
-Signed: <your name>
-Date:
+Signed: Aidar Bekzhan  
+Date: September 19, 2026
