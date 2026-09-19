@@ -39,25 +39,29 @@ n/a — used Python
 **Prompt sent** (should be exactly one sentence):
 
 ```
-
+Write Python code to analyze student marks.
 ```
 
 **Assumptions the AI made that I never gave it** — list them, one per line. A data format, a pass
 threshold, a rounding rule, an input method, an invented feature all count.
 
-1.
-2.
-3.
+1. Assumed function name `analyze_student_marks(marks)` with only one argument instead of `analyze_marks(marks, pass_mark=50)`.
+2. Assumed an invented console printing behavior (`print(...)`) with formatted report strings.
+3. Assumed an empty list should print a warning message and return `None` rather than raising a `ValueError`.
+4. Assumed returning a custom dictionary with keys `total`, `average`, `highest`, `lowest`, and `pass_rate` without type contracts.
+5. Assumed an example execution block `if __name__ == "__main__":` with sample data.
 
 **Questions it should have asked and did not:**
 
-1.
-2.
+1. What exact function name, parameter signature, and default parameter values should be implemented?
+2. What exact keys and data structure should the function return?
+3. How should edge cases and invalid inputs (empty lists, strings, negative marks, marks over 100) be handled?
+4. What is the passing threshold, how is pass rate calculated, and should floating-point numbers be rounded?
 
-**Is the function named `analyze_marks` with the required signature?** yes / no — if no, what is it
-called:
+**Is the function named `analyze_marks` with the required signature?** no — it is called `analyze_student_marks(marks)`
 
 **First impression before testing** (one sentence — you will compare this with section 6 later):
+The generated script looks like a clean introductory Python utility, but it completely fails the specification because it guessed the function name, signature, and error handling.
 
 ---
 
@@ -66,18 +70,24 @@ called:
 **Prompt sent** (paste it in full, including any substitutions):
 
 ```
-
+You are a Python developer. Implement analyze_marks(marks, pass_mark=50). Return
+average, highest, lowest, and pass_rate in a dictionary. Accept marks from 0 to 100;
+raise ValueError for an empty list, non-numeric values, or out-of-range values. Use
+no external libraries. Return code plus a short explanation.
 ```
 
 **What B fixed compared to A:**
 
-1.
-2.
+1. API signature and naming: explicitly specified `analyze_marks(marks, pass_mark=50)` and the exact required return keys (`average`, `highest`, `lowest`, `pass_rate`).
+2. Input validation: explicitly mandated raising `ValueError` on empty lists, non-numeric items, and values outside the 0–100 range.
+3. Noise elimination: eliminated unrequested CLI printing, extra keys (`total`), and unnecessary sample execution code.
 
 **What B still leaves open:**
 
-1.
-2.
+1. Precision and rounding: did not define whether `average` and `pass_rate` should be rounded to two decimals or returned as raw floats (producing `66.66666666666666` instead of `66.67`).
+2. Pass condition boundary: did not define whether passing is `>= pass_mark` or `> pass_mark`, leaving marks exactly on the pass mark ambiguous.
+3. Representation scale: did not specify whether `pass_rate` should be formatted as a percentage (`0..100`) or a decimal fraction (`0..1`).
+4. Python boolean type leak: did not clarify that booleans (which inherit from `int` in Python) must be rejected.
 
 ---
 
