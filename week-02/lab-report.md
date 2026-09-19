@@ -96,25 +96,35 @@ no external libraries. Return code plus a short explanation.
 **What I appended to Prompt B:**
 
 ```
-
+Example: analyze_marks([40, 60, 80], 50) → average 60, highest 80, lowest 40,
+pass_rate 66.67. Include tests for: one mark, decimals, custom pass_mark, empty list,
+text value, and marks below 0 or above 100. State any remaining assumptions before
+the code.
 ```
 
 **Tests the AI wrote for itself** — how many, and which situations do they cover?
 
+The AI generated 7 test assertions covering 6 distinct validation scenarios:
+
 | Situation | Covered by the AI's tests? |
 | --- | --- |
-| one mark | |
-| decimals | |
-| custom pass_mark | |
-| empty list | |
-| text value | |
-| below 0 / above 100 | |
+| one mark | yes (`[85]`, verifies single-element statistics) |
+| decimals | yes (`[49.5, 50.0]`, verifies float handling) |
+| custom pass_mark | yes (`[60, 70, 80]` with `pass_mark=70`) |
+| empty list | yes (`[]`, verifies ValueError) |
+| text value | yes (`[40, "60"]`, verifies ValueError) |
+| below 0 / above 100 | yes (`[-5, 50]` and `[50, 105]`, verifies ValueError) |
 
-**Do the AI's own tests pass against the AI's own code?** yes / no
+**Do the AI's own tests pass against the AI's own code?** yes
 
-**Do they agree with the harness in section 6?** yes / no — if no, where do they disagree:
+**Do they agree with the harness in section 6?** yes — all 6 cases match the harness expectations.
 
 **Assumptions C stated explicitly before the code:**
+1. Marks must be numeric (`int` or `float`), strictly excluding Python `bool`.
+2. A mark is considered passing when `mark >= pass_mark` (inclusive boundary).
+3. `pass_rate` is a percentage (0 to 100) rounded to 2 decimal places matching `66.67`.
+4. `average` is rounded to 2 decimal places when necessary.
+5. Any invalid input (empty list, non-numeric value, or marks < 0 or > 100) raises `ValueError`.
 
 ---
 
@@ -123,16 +133,35 @@ no external libraries. Return code plus a short explanation.
 **The complete prompt I wrote** (one message, sent to a fresh chat):
 
 ```
+You are a senior Python engineer. Write a self-contained Python function analyze_marks(marks, pass_mark=50) that analyzes student marks and returns a dictionary with keys: 'average', 'highest', 'lowest', and 'pass_rate'.
 
+Requirements:
+1. Validation:
+   - 'marks' must be a non-empty sequence of numbers. Raise ValueError if 'marks' is empty, None, or not a sequence.
+   - Every mark must be an int or float, strictly excluding bool (raise ValueError if isinstance(x, bool) or not isinstance(x, (int, float))).
+   - Every mark must be between 0 and 100 inclusive (0 <= mark <= 100). Raise ValueError otherwise.
+   - 'pass_mark' must be a valid numeric value (int or float, not bool) between 0 and 100 inclusive (default: 50). Raise ValueError otherwise.
+2. Calculations:
+   - 'average': arithmetic mean of marks, rounded to 2 decimal places (float).
+   - 'highest': maximum mark (int or float).
+   - 'lowest': minimum mark (int or float).
+   - 'pass_rate': percentage of marks that pass (where mark >= pass_mark), calculated as (count_passed / total_marks) * 100, rounded to 2 decimal places (float).
+3. Constraints:
+   - Use no external libraries (standard library only).
+   - Return clean Python code containing only the function definition, without extra markdown or boilerplate.
 ```
 
 **What I deliberately added that A, B and C did not have:**
 
-1.
-2.
-3.
+1. Strict boolean type guard: explicitly prevented Python's subtype trap (`isinstance(True, int) == True`) by mandating `isinstance(x, bool)` check before numeric validation.
+2. Parameter validation for `pass_mark`: required `pass_mark` to be a valid numeric value (not bool) between 0 and 100.
+3. Explicit rounding and return contract: mandated `round(val, 2)` for float calculations and defined `pass_rate` as a percentage (0–100 scale), removing precision ambiguities.
 
 **The ambiguity I found in the specification, and how I resolved it inside Prompt D:**
+The specification required returning `average`, `highest`, `lowest`, and `pass_rate` and showed `pass_rate 66.67` in the example, but left two critical ambiguities unaddressed:
+First, it did not state whether `pass_rate` was a percentage (0..100) or a ratio (0.0..1.0), nor did it specify whether floating-point numbers should be rounded to 2 decimal places or preserved as full-precision IEEE-754 floats (which produce `66.66666666666666` in Case 1).
+Second, in Python, `bool` is a subclass of `int` (`isinstance(True, int)` evaluates to `True`), meaning boolean values would silently pass naive type checks without raising `ValueError`.
+I resolved both inside Prompt D by explicitly requiring `round(..., 2)` on percentage calculations (0–100 scale) and explicitly excluding boolean types via `isinstance(x, bool)`.
 
 ---
 
