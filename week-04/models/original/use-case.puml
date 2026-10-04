@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor Student
+actor Administrator
+actor System
+
+rectangle "Smart Campus System" {
+  usecase "View availability" as UC1
+  usecase "Book room" as UC2
+  usecase "Cancel booking" as UC3
+  usecase "Send confirmation" as UC4
+  usecase "Block / unblock room" as UC5
+  usecase "Review usage" as UC6
+  usecase "Login to system" as UC7
+}
+
+Student --> UC1
+Student --> UC2
+Student --> UC3
+Student --> UC4
+Student --> UC7
+
+Administrator --> UC5
+Administrator --> UC6
+Administrator --> UC7
+Administrator --> UC2
+
+UC2 ..> UC4 : <<include>>
+System --> UC4
+
+note bottom of UC2
+  Assumptions:
+  1. Room booking duration is up to 2 hours.
+  2. Overlapping active bookings are prevented.
+  3. Confirmation is sent via email or notification.
+end note
+@enduml

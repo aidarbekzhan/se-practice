@@ -1,0 +1,31 @@
+@startuml
+skinparam packageStyle rectangle
+left to right direction
+
+actor Student
+actor Administrator
+
+rectangle "Smart Campus Booking System" {
+  usecase "View availability" as UC_View
+  usecase "Book room" as UC_Book
+  usecase "Cancel booking" as UC_Cancel
+  usecase "Block / unblock room" as UC_Block
+  usecase "Review usage" as UC_Usage
+  usecase "Generate booking confirmation" as UC_Confirm
+}
+
+Student --> UC_View
+Student --> UC_Book
+Student --> UC_Cancel
+
+Administrator --> UC_Block
+Administrator --> UC_Usage
+
+' why: R4 mandates that a successful booking produces a confirmation
+UC_Book .> UC_Confirm : <<include>>
+
+note right of UC_Confirm
+  R4: Confirmation is an automated outcome
+  of booking, not an actor goal.
+end note
+@enduml

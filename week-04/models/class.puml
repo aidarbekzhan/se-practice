@@ -1,0 +1,43 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Student {
+  +studentId: String
+  +name: String
+  +email: String
+}
+
+class Room {
+  +roomId: String
+  +capacity: int
+  +isBlocked: boolean
+  +block(): void
+  +unblock(): void
+}
+
+class Booking {
+  +bookingId: String
+  +startTime: DateTime
+  +endTime: DateTime
+  +status: BookingStatus
+  +cancel(): void
+}
+
+enum BookingStatus {
+  ACTIVE
+  CANCELLED
+}
+
+Student "1" -- "0..*" Booking : makes
+Room "1" -- "0..*" Booking : reserved for
+
+note bottom of Booking
+  R2: Active bookings for the same
+  room cannot overlap in time.
+end note
+
+note right of Room
+  R3: A room with isBlocked = true
+  cannot accept any new booking.
+end note
+@enduml

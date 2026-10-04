@@ -1,0 +1,53 @@
+# week-04/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+# If you cannot run Python, fill the file by hand against the comments — a malformed
+# file costs you nothing if the content is there.
+
+schema: 1
+week: "04"
+
+student:
+  name: Aidar Bekzhan
+  student_id: 24B031641
+  github: aidarbekzhan
+
+assistant:
+  tool: ChatGPT (OpenAI)
+  model: GPT-4o (version 2024-08-06)
+
+counts:
+  behaviour_diagram: sequence
+  stories_source: reference
+  use_cases: 6
+  change_log_rows: 3
+
+checker:
+  pass: 37
+  fail: 0
+  error: 0
+  commit: 2ab2a20
+  kept_fails: []
+
+assumptions:
+  overlap_touching_bookings: allowed
+  blocking_a_booked_room: keep-bookings
+
+traceability:
+  use_cases_not_traced: []
+  rules_not_shown: []
+
+review_findings:
+  - "Student was directly linked to confirmation; R4 specifies confirmation as an automated outcome of Book room."
+  - "Room *-- Booking was modeled as composition; a booking is an independent entity, revised to association 1 to 0..*."
+  - "BookingService saved the booking before validating R1 and R3; reordered sequence so validation precedes persistence."
+
+honesty:
+  originals_unedited: yes
+  can_explain_everything_submitted: yes
+  ai_usage_disclosed: yes
