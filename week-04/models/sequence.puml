@@ -1,0 +1,38 @@
+@startuml
+autonumber
+actor Student
+participant BookingService
+participant BookingRepository
+
+Student -> BookingService : requestBooking(roomId, startTime, endTime)
+activate BookingService
+
+' R1 check: Duration <= 2 hours and start time is in future
+BookingService -> BookingService : validateTimeRange(startTime, endTime) : R1 check
+
+' R3 check: Verify room is not blocked
+BookingService -> BookingRepository : checkRoomBlockedStatus(roomId) : R3 check
+activate BookingRepository
+BookingRepository --> BookingService : isBlockedStatus
+deactivate BookingRepository
+
+' R2 check: Verify no overlapping active bookings exist
+BookingService -> BookingRepository : findOverlappingActiveBookings(roomId, startTime, endTime) : R2 check
+activate BookingRepository
+BookingRepository --> BookingService : overlappingList
+deactivate BookingRepository
+
+alt room is free and all rules R1-R3 satisfied
+    BookingService -> BookingRepository : saveBooking(newBooking)
+    activate BookingRepository
+    BookingRepository --> BookingService : bookingSavedConfirmation
+    deactivate BookingRepository
+
+    ' R4: Generate confirmation upon successful booking
+    BookingService --> Student : returnBookingConfirmation(bookingDetails)
+else room is unavailable or rule violated
+    BookingService --> Student : returnBookingRejection(failureReason)
+end
+
+deactivate BookingService
+@enduml

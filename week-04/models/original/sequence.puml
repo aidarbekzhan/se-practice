@@ -1,0 +1,19 @@
+@startuml
+autonumber
+actor Student
+participant BookingService
+participant BookingRepository
+
+Student -> BookingService : bookRoom(studentId, roomId, startTime, endTime)
+BookingService -> BookingRepository : saveBooking(studentId, roomId, startTime, endTime)
+BookingRepository --> BookingService : bookingCreated
+
+BookingService -> BookingService : validateRules(startTime, endTime)
+
+alt room available
+    BookingService --> Student : confirmBooking(bookingId)
+else room unavailable
+    BookingService -> BookingRepository : deleteBooking(bookingId)
+    BookingService --> Student : errorRoomUnavailable()
+end
+@enduml

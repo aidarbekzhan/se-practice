@@ -1,0 +1,39 @@
+@startuml
+class Student {
+  +studentId : String
+  +name : String
+  +email : String
+  +bookRoom(roomId: String, slot: TimeSlot)
+  +cancelBooking(bookingId: String)
+}
+
+class Room {
+  +roomId : String
+  +capacity : int
+  +isAvailable : boolean
+  +blockRoom()
+  +unblockRoom()
+}
+
+class Booking {
+  +bookingId : String
+  +startTime : DateTime
+  +endTime : DateTime
+  +calculateDuration() : int
+}
+
+class BookingService {
+  +validateBooking(booking: Booking) : boolean
+  +createReservation(student: Student, room: Room)
+}
+
+Room "1" *-- "1..*" Booking : contains
+Student "1" -- "0..*" Booking : creates
+
+note bottom of Booking
+  Assumptions:
+  1. Room contains bookings via composition.
+  2. Booking duration cannot exceed 2 hours.
+  3. No overlapping bookings allowed.
+end note
+@enduml
