@@ -15,7 +15,7 @@ def can_book(start, end, now, blocked, existing):
 
     # AC4: No overlap with an existing booking. Touching endpoints are allowed.
     for a, b in existing:
-        if start <= b and end >= a:
+        if start < b and end > a:
             return False
 
     # AC5: Return True only when AC1-AC4 hold. Return False otherwise and never alter existing.
