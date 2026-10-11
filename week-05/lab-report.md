@@ -81,21 +81,23 @@ row saying which lines of the plan you checked against which AC.
 
 ## 3. Task 2 — the first version (v1), read before it was run
 
-v1 is saved as `code/original/booking_v1.<ext>`, exactly as the assistant returned it: yes / no
+v1 is saved as `code/original/booking_v1.py`, exactly as the assistant returned it: yes
 
 **AC map.** One row per condition in v1. Quote the line.
 
 | # | Line in v1 | AC it implements | Correct as written? If not, why |
 | --- | --- | --- | --- |
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
+| 1 | `if blocked: return False` | AC3 | Correct as written. Rejects any request when the room is marked as blocked. |
+| 2 | `if not (0 <= start < end <= 1440): return False` | AC1 | Correct as written. Enforces day bounds and strict ordering: `0 <= start < end <= 1440`. |
+| 3 | `if start <= now: return False` | AC1 | Correct as written. Enforces that the booking starts strictly in the future (`start > now`). |
+| 4 | `if end - start > 120: return False` | AC2 | Correct as written. Enforces maximum duration of at most 120 minutes. |
+| 5 | `if start <= b and end >= a: return False` | AC4 | Incorrect. Using `<=` and `>=` erroneously rejects touching endpoints (`start == b` or `end == a`), violating AC4 which permits touching bookings. Must use strict inequalities `<` and `>`. |
+| 6 | `return True` | AC5 | Correct as written. Returns `True` only when AC1–AC4 all hold and leaves `existing` unchanged. |
 
 **Anything in v1 that no AC asks for** (extra validation, a buffer between bookings, logging,
 saving the booking, a different return type):
 
--
+- None. The assistant's v1 stayed strictly within the required signature and contract without adding extra parameters, logging, exceptions, or external dependencies.
 
 ---
 
