@@ -13,57 +13,55 @@ schema: 1
 week: "05"
 
 student:
-  name:
-  student_id:          # as in KBTU records, e.g. 00X000000
-  github:              # your GitHub username, the one that owns the repo
+  name: Aidar Bekzhan
+  student_id: 24B031641
+  github: aidarbekzhan
 
 assistant:
-  tool:                # e.g. ChatGPT, Claude, Gemini, DeepSeek, Grok
-  model:               # the exact model name with its version. "ChatGPT" is not a model name.
+  tool: ChatGPT (OpenAI)
+  model: GPT-4o (version 2024-08-06)
 
 language:
-  name:                # python | javascript | typescript | java | csharp | go | cpp | <other>
-  path:                # A (Python, the shipped checker runs your code) | B (any other language)
+  name: python
+  path: A
 
 counts:
-  tests:               # how many tests your suite runs — Path A: the N in "Ran N tests"
-  v1_changed:          # yes | no   is your final booking file different from code/original/booking_v1 ?
-  change_log_rows:     # rows in lab-report.md section 7 (always at least 1)
+  tests: 16
+  v1_changed: yes
+  change_log_rows: 1
 
 checker:
   # Numbers from YOUR last run of: python tests/check_booking.py
   # They must add up to the number of checks it runs (32 on Path A, 13 on Path B).
   # Report them as they came out.
   # A FAIL you report and explain in lab-report.md costs you nothing. A hidden one costs the criterion.
-  pass:
-  fail:
-  error:
-  commit:              # the commit you ran the checker at: git rev-parse --short HEAD
-                       # (normally the commit just before you commit this file — that is fine)
-  known_fails: []      # every check ID that is still FAIL or ERROR, explained in lab-report.md §9.1, e.g. [M9, L9]
+  pass: 32
+  fail: 0
+  error: 0
+  commit: 2cf31a9
+  known_fails: []
 
 assumptions:
   # The contract says times are integers and stops there. Decide, declare, and defend it in lab-report.md §9.2.
   # Any answer is acceptable. Not deciding is not.
-  non_integer_time:    # return-false | raise-error | not-handled | refused-by-compiler
-                       # what YOUR can_book does for start=600.5 or start="600"
+  non_integer_time: not-handled
 
 carried:
   # What you declared in week-04/submission.yml under overlap_touching_bookings.
   # AC4 settles it this week: touching endpoints are allowed. If you said not-allowed, that is a
   # finding for lab-report.md §1 — not a penalty.
-  week04_touching:     # allowed | not-allowed | not-submitted
+  week04_touching: allowed
 
 review_findings:
   # Three or more. One line each, and each one names what it is about: an AC, a check ID,
   # one of your tests, or v1.
   # Worthless:        "the AI made some mistakes"
   # Worth everything: "F7: v1 used start <= b, so can_book(570, 600, ...) was rejected although AC4 allows touching"
-  -
-  -
-  -
+  - "AC4: v1 used start <= b and end >= a, rejecting touching endpoints (660, 720) that AC4 explicitly allows."
+  - "AC1: The lower bound 0 <= start is mathematically redundant since now >= 0 and start > now implies start > 0."
+  - "AC5: The AI suggested sorting existing before checking; rejected because in-place sorting mutates caller data."
 
 honesty:
-  v1_unedited:                       # yes | no   code/original/ holds the assistant's first answer, untouched
-  can_explain_overlap_without_ai:    # yes | no   you will be asked in class
-  ai_usage_disclosed:                # yes | no   AI_USAGE.md is complete
+  v1_unedited: yes
+  can_explain_overlap_without_ai: yes
+  ai_usage_disclosed: yes
