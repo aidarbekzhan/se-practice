@@ -32,7 +32,15 @@
 <!-- 350–400 words. Your answer to the question, the trade-offs, and how it applies to your
      scenario. Explain at least two engineering decisions and why they fit the scenario. -->
 
-(write here)
+Software engineering methods reduce long-term system costs by structuring development around total lifecycle expenditure rather than short-term implementation speed. In classical software engineering economics, writing code represents only an initial fraction of total expenditure; ongoing maintenance, adaptation, and fault remediation routinely consume the majority of resources over an application's operational lifespan. Consequently, faster automated code generation does not inherently yield lower total system costs. When generative tools synthesize code rapidly without architectural constraints, they frequently introduce hidden coupling, missing validation logic, and fragile interfaces. When business rules or university policies inevitably shift, maintaining undisciplined code demands extensive debugging and refactoring, which rapidly eliminates any initial time savings.
+
+In the context of the departmental laboratory equipment booking system, applying engineering discipline directly mitigates costly operational overhead. The system coordinates one hundred fifty equipment kits across three engineering departments while constrained to twenty concurrent database connections on legacy departmental Linux hardware. Furthermore, departmental privacy policies strictly forbid storing sensitive student telephone numbers, requiring clear separation between institutional identity tokens and booking entities. Under unengineered rapid prototyping, burst traffic during laboratory midterm examinations would easily exhaust the connection pool, crashing the service and triggering manual administrative recovery.
+
+To guarantee dependability within these constraints, two specific engineering decisions are required:
+
+First, the architecture implements a bounded database connection pool coupled with an asynchronous request queue. Rather than allowing uncontrolled connection spawning, the data access layer strictly caps active PostgreSQL connections at eighteen—reserving two connections for emergency technician administration—and queues incoming booking attempts with strict five-second timeouts. This decision directly satisfies the legacy hardware constraint while eliminating database connection starvation during peak traffic.
+
+Second, the system enforces concurrency control through pessimistic row-level locking on inventory records within isolated database transactions. When a student initiates a reservation for a scarce single-unit oscilloscope, the transaction locks that specific hardware inventory row until commitment. This engineering decision eliminates the catastrophic risk of double-booking during exam weeks, preventing scheduling disputes, student grade grievances, and manual technician intervention. Although implementing transactional concurrency control, modular interfaces, and connection queuing requires greater upfront design effort than naive scripting, it prevents compounding operational debt, protects academic integrity, and minimizes lifetime maintenance expenditure across academic semesters.
 
 ## 3. Review
 
@@ -40,20 +48,30 @@
      checks and your two substantive revisions, each with a reason. Point at the rows of the
      tables in section 9 ("verification row 2", "change-log row 1"). -->
 
-(write here)
+Prompt B provided four critical observations regarding the initial draft. I accepted its critique concerning overgeneralized lifecycle cost statistics and uncritical assumptions about AI code generation, qualified its connection pooling feedback by detailing queuing mechanics, and rejected its suggestion to rely on manual reconciliation instead of automated concurrency control.
+
+The critique correctly highlighted that the draft treated the 60–80% maintenance ratio as universal. In verification row 1, I consulted Ian Sommerville’s Software Engineering (10th ed., Chapter 1, Section 1.1.2, p. 23–24, Figure 1.1) and confirmed that while evolution costs exceed development costs for custom bespoke systems, generic commercial software exhibits different economic patterns where upfront development and testing dominate. Consequently, I qualified the claim in change-log row 1 to clarify that lifecycle cost distribution depends heavily on software classification and operational lifespan.
+
+Prompt B also challenged the assumption that manual reconciliation of exam double-bookings might be cheaper than implementing programmatic locking. I rejected this argument based on verification row 2, referencing the ACM/IEEE-CS Software Engineering Code of Ethics (Principles 1.03 and 3.01). Software engineers have a professional obligation to approve only dependable software that protects operational integrity; in an academic setting, allowing exam-day double-bookings undermines grading fairness and student trust, which cannot be excused by minor development savings.
+
+Finally, in change-log row 2, I revised abstract connection pool claims into concrete bounded connection queuing to address the scenario's strict twenty-connection constraint on legacy Linux hardware. This change ensures that peak reservation traffic cannot starve database resources, eliminating recurring technician recovery labor.
 
 ## 4. Conclusion
 
 <!-- 100–150 words. Your recommendation for the scenario and its main limitation. -->
 
-(write here)
+For the university laboratory equipment booking system, I recommend deploying a modular monolithic architecture featuring bounded database connection queuing and pessimistic inventory locking. By investing modest upfront effort into transaction boundaries and connection limits, the department prevents recurrent operational crashes, eliminates equipment double-bookings during critical laboratory examinations, and drastically lowers multi-semester maintenance overhead. Faster initial code generation should be leveraged strictly for boilerplate scaffolding and automated test generation under rigorous human architectural review.
+
+The primary limitation of this recommendation is that pessimistic row-level locking inherently limits concurrent throughput for identical hardware items. If dozens of students simultaneously compete for the same oscilloscope model during the final minutes of a reservation window, transactional lock contention will cause minor interface latency for queued requests.
 
 ## 5. Reflection
 
 <!-- 150–200 words. NOT part of the main total. Written by you, not by the assistant:
      what helped, what you changed, what you learned. Specific beats flattering. -->
 
-(write here)
+Working through this assignment demonstrated the critical difference between rapid code generation and disciplined software engineering. Initially, I assumed that using an AI assistant would simply accelerate delivery by providing ready-made architectural advice. However, reviewing the AI's initial draft in Prompt B exposed significant gaps: the assistant generalized textbook cost ratios across all software types without considering context, and suggested abstract solutions that ignored my scenario's twenty-connection database constraint.
+
+The most valuable step was manually verifying claims in Sommerville and the ACM/IEEE-CS Code of Ethics. Opening Chapter 1 of Sommerville forced me to re-evaluate how custom software differs economically from generic products, leading me to substantially rewrite the lifecycle cost explanation. Furthermore, defending the concurrency locking decision against Prompt B's suggestion of manual administrative reconciliation taught me that software engineering is ultimately about professional responsibility: building dependable systems that protect user workflows rather than cutting corners to minimize initial coding hours. In future projects, I will treat generative AI as an ideation partner while rigorously validating architectural decisions against domain constraints.
 
 ## 6. References
 
