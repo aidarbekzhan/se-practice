@@ -1,0 +1,67 @@
+# week-05/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+# If you cannot run Python, fill the file by hand against the comments — a malformed
+# file costs you nothing if the content is there.
+
+schema: 1
+week: "05"
+
+student:
+  name: Aidar Bekzhan
+  student_id: 24B031641
+  github: aidarbekzhan
+
+assistant:
+  tool: ChatGPT (OpenAI)
+  model: GPT-4o (version 2024-08-06)
+
+language:
+  name: python
+  path: A
+
+counts:
+  tests: 16
+  v1_changed: yes
+  change_log_rows: 1
+
+checker:
+  # Numbers from YOUR last run of: python tests/check_booking.py
+  # They must add up to the number of checks it runs (32 on Path A, 13 on Path B).
+  # Report them as they came out.
+  # A FAIL you report and explain in lab-report.md costs you nothing. A hidden one costs the criterion.
+  pass: 32
+  fail: 0
+  error: 0
+  commit: 2cf31a9
+  known_fails: []
+
+assumptions:
+  # The contract says times are integers and stops there. Decide, declare, and defend it in lab-report.md §9.2.
+  # Any answer is acceptable. Not deciding is not.
+  non_integer_time: not-handled
+
+carried:
+  # What you declared in week-04/submission.yml under overlap_touching_bookings.
+  # AC4 settles it this week: touching endpoints are allowed. If you said not-allowed, that is a
+  # finding for lab-report.md §1 — not a penalty.
+  week04_touching: allowed
+
+review_findings:
+  # Three or more. One line each, and each one names what it is about: an AC, a check ID,
+  # one of your tests, or v1.
+  # Worthless:        "the AI made some mistakes"
+  # Worth everything: "F7: v1 used start <= b, so can_book(570, 600, ...) was rejected although AC4 allows touching"
+  - "AC4: v1 used start <= b and end >= a, rejecting touching endpoints (660, 720) that AC4 explicitly allows."
+  - "AC1: The lower bound 0 <= start is mathematically redundant since now >= 0 and start > now implies start > 0."
+  - "AC5: The AI suggested sorting existing before checking; rejected because in-place sorting mutates caller data."
+
+honesty:
+  v1_unedited: yes
+  can_explain_overlap_without_ai: yes
+  ai_usage_disclosed: yes
