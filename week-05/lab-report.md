@@ -129,11 +129,31 @@ cause column says why no change was needed.
 
 | # | Input (the full call) | Expected | Actual | Cause (quote the line) | Fix | Who proposed the fix |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | | | | | | |
+| 1 | `can_book(660, 720, 540, False, [(600, 660)])` | True | False | Line 17 in v1: `if start <= b and end >= a:` | Replace `<=` and `>=` with strict `<` and `>`: `if start < b and end > a:` | Assistant (prompted with failing test and AC4) |
 
 **The debug prompt I sent, and the assistant's answer** (leave the block empty if you did not use it):
 
 ```text
+Prompt:
+The expected result is True, but I get False. Here are my code and failing test. Explain the cause and propose the smallest fix without changing the contract.
+
+Code:
+for a, b in existing:
+    if start <= b and end >= a:
+        return False
+
+Test:
+can_book(660, 720, 540, False, [(600, 660)]) -> expected True, got False
+
+Assistant reply:
+Cause: In your overlap condition, `start <= b` evaluates to True when `start == b` (660 <= 660), and `end >= a` evaluates to True when `end >= a` (720 >= 600). As a result, touching endpoints are treated as an overlap and rejected, violating AC4 which specifies that touching endpoints are allowed.
+
+Fix: Use strict inequalities `<` and `>` instead of `<=` and `>=`. An interval [start, end) overlaps [a, b) if and only if `start < b` and `end > a`.
+
+Replace:
+    if start <= b and end >= a:
+with:
+    if start < b and end > a:
 ```
 
 ---
@@ -143,13 +163,31 @@ cause column says why no change was needed.
 **The assistant's critique, pasted unedited:**
 
 ```text
-(paste here)
+Review of can_book implementation:
+
+1. Issue: No input type validation for start, end, now.
+   Line: `if not (0 <= start < end <= 1440):`
+   Concern: Contract line 1 ("Times are integer minutes..."). If a caller passes floats like 600.5 or strings "600", Python might either compare unexpectedly or raise a TypeError.
+
+2. Issue: Redundant check for start <= now versus start < 0.
+   Line: `if not (0 <= start < end <= 1440):` and `if start <= now:`
+   Concern: AC1 ("0 <= start < end <= 1440, and start > now"). Since now is guaranteed to be >= 0, the check `start > now` already guarantees `start > 0 >= 0`. Thus `0 <= start` is logically subsumed whenever now >= 0.
+
+3. Issue: No check ensuring each item in existing is a 2-tuple.
+   Line: `for a, b in existing:`
+   Concern: Contract line 3 ("existing contains valid (start, end) tuples"). If an invalid tuple or malformed element is provided, unpacking will raise ValueError.
+
+4. Issue: No defense against caller mutating existing concurrently.
+   Line: `for a, b in existing:`
+   Concern: AC5 ("never alter existing"). The function iterates directly over `existing`; while it does not mutate it, if the caller modifies the list concurrently, behavior is undefined.
 ```
 
 | # | Suggestion | accept / reject | Reason — cite the AC or the contract line | Suite after the change |
 | --- | --- | --- | --- | --- |
-| 1 | | accept / reject | | |
-| 2 | | accept / reject | | |
+| 1 | Add runtime type validation and reject or raise on non-integer inputs | reject | Contract guarantees that caller passes integer minutes and valid now; AC5 states to return Booleans only, never raise exceptions. | 16 tests passed |
+| 2 | Remove redundant check `0 <= start` since `now >= 0` and `start > now` | reject | AC1 explicitly specifies `0 <= start < end <= 1440`; keeping it maintains 1-to-1 traceability with AC1 without performance harm. | 16 tests passed |
+| 3 | Validate structure of items in `existing` list | reject | Contract states `existing` contains valid (start, end) tuples as a caller precondition; defensive validation violates scope. | 16 tests passed |
+| 4 | Defensive copy of `existing` before iteration | reject | AC5 requires `can_book` itself to never alter `existing`; read-only iteration alters nothing and avoids unnecessary allocations. | 16 tests passed |
 
 ---
 
@@ -157,7 +195,7 @@ cause column says why no change was needed.
 
 | # | What changed (the line, before → after) | Why | Evidence: the test or check that moved |
 | --- | --- | --- | --- |
-| 1 | | | |
+| 1 | `if start <= b and end >= a:` → `if start < b and end > a:` | Allow touching endpoints where new start equals existing end (`start == b`) or new end equals existing start (`end == a`) per AC4. | `test_touching_end_is_allowed` and `test_touching_start_is_allowed` moved from FAIL to PASS; checks F1, F7 moved from FAIL to PASS. |
 
 ---
 
