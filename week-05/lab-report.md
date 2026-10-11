@@ -28,7 +28,32 @@ In Week 04, I already assumed and declared that touching bookings are allowed (`
 **The assistant's plan, pasted unedited:**
 
 ```text
-(paste here)
+Implementation Plan for can_book:
+
+1. Order of Checks:
+   - Check 1 (AC3 - Room Status): Check if `blocked` is True. If True, return False immediately.
+   - Check 2 (AC1 - Time Boundaries & Ordering): Verify `0 <= start < end <= 1440`. If not, return False.
+   - Check 3 (AC1 - Future Requirement): Verify `start > now`. If `start <= now`, return False.
+   - Check 4 (AC2 - Maximum Duration): Calculate `end - start`. If duration > 120 minutes, return False.
+   - Check 5 (AC4 - Overlap Detection): Iterate through every active booking (a, b) in `existing`.
+     An overlap occurs when `start < b` and `end > a`. Touching endpoints (start == b or end == a) are permitted.
+     If any booking overlaps, return False.
+   - Check 6 (AC5 - Final Approval): If all checks pass and no overlaps occur, return True. Guarantee that `existing` is never altered.
+
+2. Assumptions:
+   - Input times are valid integers per contract; `now` is between 0 and 1439, and `blocked` is a Boolean.
+   - `existing` is a list of valid (start, end) tuples, but might not be sorted. We could consider sorting or defensive type checking for robustness.
+
+3. Boundary Cases Suggested:
+   - Touching endpoints: (660, 720) when existing has (600, 660) -> True.
+   - Reverse touching: (570, 600) when existing has (600, 660) -> True.
+   - Starts at current time: start == now (e.g. 540) -> False.
+   - Starts one minute ahead: start == now + 1 (541) -> True.
+   - Exactly 120 minutes: (720, 840) -> True.
+   - Over 120 minutes: (720, 841) -> False.
+   - Zero-length booking: start == end (700, 700) -> False.
+   - Midnight boundary: end == 1440 -> True; end == 1441 -> False.
+   - Complete containment: (570, 690) around (600, 660) -> False.
 ```
 
 **What the plan invented or changed.** One row for every rule in the plan that is not in the
@@ -37,11 +62,20 @@ row saying which lines of the plan you checked against which AC.
 
 | # | What the plan said | What the contract or the AC says | What I did |
 | --- | --- | --- | --- |
-| 1 | | | |
+| 1 | In Assumptions, suggested defensive type checking and input validation for non-integer values | Contract states times are integer minutes as a caller guarantee; AC5 states: return False otherwise and never alter existing | Dropped defensive type validation or raising exceptions. Kept behavior strictly within AC1–AC5 returning Booleans. |
+| 2 | In Assumptions, suggested sorting `existing` to optimize overlap checks | Contract states "Keep all inputs unchanged" and AC5 states "never alter existing" | Rejected sorting. In Python `list.sort()` mutates in-place, which violates AC5. Kept linear scan through `existing` without modifying it. |
 
 **Boundary cases the assistant suggested that I kept as tests:**
 
--
+- Touching end endpoint: `(660, 720)` with existing `[(600, 660)]` -> `True` (AC4)
+- Touching start endpoint: `(570, 600)` with existing `[(600, 660)]` -> `True` (AC4)
+- Start equal to current time: `start == now` (`540 == 540`) -> `False` (AC1)
+- Exactly 120 minutes duration: `(720, 840)` -> `True` (AC2)
+- One minute over duration limit: `(720, 841)` -> `False` (AC2)
+- Zero-length request: `start == end` (`700, 700`) -> `False` (AC1)
+- Booking extending to day limit: `end == 1440` -> `True` (AC1)
+- Booking exceeding day limit: `end == 1441` -> `False` (AC1)
+- Enclosing interval containing existing booking: `(570, 690)` containing `(600, 660)` -> `False` (AC4)
 
 ---
 
