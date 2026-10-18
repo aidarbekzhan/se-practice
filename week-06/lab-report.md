@@ -43,17 +43,28 @@ Build a small responsive Smart Campus Room Availability Checker. Requirements: A
 ## 3. Task 2 — prototype v1
 
 v1 export saved in `original/` and screenshot saved as `evidence/v1.png` **before** any cleanup
-prompt: yes / no
+prompt: yes
 
 **Bolt's list of the files/components it created, pasted unedited:**
 
 ```text
-(paste here)
+- package.json: Project configuration and dependencies (React 18, Vite)
+- index.html: Main HTML document container with responsive viewport
+- src/App.jsx: Main single-page interactive room availability checker component
+- src/index.css: Clean responsive styling and badge indicators
 ```
 
 **What v1 does — one line per thing that works, or visibly does not:**
 
--
+- Displays room selection dropdown with fictional campus rooms and existing bookings.
+- Accepts start and end time inputs with an interactive Check Availability button.
+- Renders a colored Available or Unavailable decision badge upon clicking Check.
+- Correctly identifies blocked rooms (Room 102) and rejects them as Unavailable.
+- Correctly rejects intervals strictly longer than 120 minutes (e.g., 12:00-14:01).
+- Visibly fails to accept touching intervals (11:00-12:00) due to inclusive <= boundary overlap check.
+- Lacks a control for supplied current time, reading system clock new Date() and making T6 not testable.
+- Mutates room booking data and persists to localStorage on check, causing repeat checks to fail.
+- Lacks descriptive validation feedback when start time is reversed or after end time.
 
 **Repair prompt** (only if the first build did not run — the deck allows one, then the result is
 v1). Leave empty if you did not need it:
