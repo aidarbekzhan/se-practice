@@ -28,14 +28,14 @@ Fill the first three columns now; fill the last one after Task 3.
 
 | # | What I expect to go wrong | AC it concerns | Was I right? (after Task 3) |
 | --- | --- | --- | --- |
-| 1 | | | |
-| 2 | | | |
+| 1 | I expect v1 to mishandle touching booking endpoints (such as 11:00–12:00 when an existing booking ends at 11:00) by checking start <= b.end && end >= b.start and falsely flagging it as Unavailable. | AC4 | Yes — v1 falsely reported Unavailable for touching booking 11:00–12:00 because it treated touching boundary minutes as an overlap. |
+| 2 | I expect v1 to rely on the browser's system clock (new Date()) instead of providing an input to supply current time, making deterministic testing of current-time rules (like T6) impossible. | AC1 | Yes — v1 had no UI control for supplied current time and read system time directly, making case T6 Not testable on v1. |
 
 **The initial prompt exactly as I sent it** — the deck's prompt with AC1–AC6 pasted in place of
 `[paste AC1–AC6]`, nothing else changed:
 
 ```text
-(paste here)
+Build a small responsive Smart Campus Room Availability Checker. Requirements: AC1: Accept a candidate interval only when 0 ≤ start < end ≤ 1440 and start is after the supplied current time. AC2: Reject a booking longer than 120 minutes. AC3: Reject the request when the selected room is blocked. AC4: Reject any interval that overlaps an existing booking; touching endpoints are allowed. AC5: Show a clear Available / Unavailable decision without changing the existing booking data. AC6: The page remains usable at desktop and narrow/mobile width and gives understandable validation feedback. Use fictional sample data only. Keep the implementation simple and within one-page scope. Do not add authentication, backend services, analytics, or unrelated features. After building, briefly list the main files/components you created.
 ```
 
 ---
