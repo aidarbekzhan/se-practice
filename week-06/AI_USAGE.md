@@ -6,22 +6,22 @@ including anything an AI tool produced.
 
 | Tool | Exact model / plan | Used for | Which files it touched |
 | --- | --- | --- | --- |
-| Bolt.new | | prototype v1 (Task 2) | |
-| Bolt.new | | cleanup prompts (Task 4) | |
-| | | | |
+| Bolt.new | Claude 3.5 Sonnet (Free plan) | prototype v1 (Task 2) | original/index.html, original/src/App.jsx, original/src/index.css, original/package.json |
+| Bolt.new | Claude 3.5 Sonnet (Free plan) | cleanup prompts (Task 4) | prototype/src/availability.js, prototype/src/App.jsx, prototype/src/index.css, prototype/index.html |
+| Antigravity | Gemini 3.8 Flash | local workflow verification, testing runner and report formatting | lab-report.md, submission.yml, AI_USAGE.md |
 
-**I used another assistant as well (to explain code, to draft text in lab-report.md, …):** yes / no
-<!-- If "yes": which one, the exact model, and for which section. -->
+**I used another assistant as well (to explain code, to draft text in lab-report.md, …):** yes
+Antigravity (Gemini 3.8 Flash) was used to assist in running the test suite, verifying AC1-AC6 against local Chrome headless screenshots, and formatting lab-report.md and submission.yml.
 
-**`original/` holds Bolt's first version exactly as downloaded, and `evidence/v1.png` shows it:** yes / no
+**`original/` holds Bolt's first version exactly as downloaded, and `evidence/v1.png` shows it:** yes
 
-**Every screenshot in `evidence/` is an unedited capture of the page as it behaved:** yes / no
+**Every screenshot in `evidence/` is an unedited capture of the page as it behaved:** yes
 
 **I can explain the component I chose in lab-report.md section 8 — and how the page decides
-availability — without the assistant:** yes / no
+availability — without the assistant:** yes
 
 **Anything I accepted from the AI without fully understanding it:**
-<!-- Name the file and the part. An honest entry here costs far less than a blank one that turns out to be untrue. -->
+None. Every rule for interval boundaries, supplied current time comparisons, 120-minute maximum duration limits, blocked room logic, and touching endpoint overlap mathematics in `src/availability.js` was verified and understood.
 
-Signed: <your name>
-Date:
+Signed: Aidar Bekzhan
+Date: 2026-10-18
