@@ -83,15 +83,15 @@ no way to set up the case). Save each final run as `evidence/final-T<n>.png`.
 
 | # | Case | What you set up and request | Expected | AC | Result on v1 | Result on final | Final screenshot |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 | Touching | 11:00–12:00 | Available | AC4 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T1.png |
-| T2 | Overlap | 10:30–11:30 | Unavailable | AC4 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T2.png |
-| T3 | Blocked | 11:00–12:00, room blocked | Unavailable | AC3 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T3.png |
-| T4 | Exactly 2 hours | 12:00–14:00 | Available | AC2 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T4.png |
-| T5 | Over 2 hours | 12:00–14:01 | Unavailable | AC2 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T5.png |
-| T6 | Starts now | 09:00–09:30 (current time 09:00) | Unavailable | AC1 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T6.png |
-| T7 | Reversed times | 12:00–11:00, and the page says why | Unavailable | AC1, AC6 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T7.png |
-| T8 | Same check twice | T1, then T1 again without reloading | Available | AC5 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T8.png |
-| T9 | Narrow screen | T1 at about 375 px wide | Available | AC6 | Available / Unavailable / Not testable | Available / Unavailable / Not testable | final-T9.png |
+| T1 | Touching | 11:00–12:00 | Available | AC4 | Unavailable | Available | final-T1.png |
+| T2 | Overlap | 10:30–11:30 | Unavailable | AC4 | Unavailable | Unavailable | final-T2.png |
+| T3 | Blocked | 11:00–12:00, room blocked | Unavailable | AC3 | Unavailable | Unavailable | final-T3.png |
+| T4 | Exactly 2 hours | 12:00–14:00 | Available | AC2 | Available | Available | final-T4.png |
+| T5 | Over 2 hours | 12:00–14:01 | Unavailable | AC2 | Unavailable | Unavailable | final-T5.png |
+| T6 | Starts now | 09:00–09:30 (current time 09:00) | Unavailable | AC1 | Not testable | Unavailable | final-T6.png |
+| T7 | Reversed times | 12:00–11:00, and the page says why | Unavailable | AC1, AC6 | Unavailable | Unavailable | final-T7.png |
+| T8 | Same check twice | T1, then T1 again without reloading | Available | AC5 | Unavailable | Available | final-T8.png |
+| T9 | Narrow screen | T1 at about 375 px wide | Available | AC6 | Unavailable | Available | final-T9.png |
 
 ---
 
@@ -104,8 +104,9 @@ log a justified cleanup that preserves behaviour. Save a screenshot of each as
 
 | # | Issue | Evidence: steps → expected → observed | Priority | Decision |
 | --- | --- | --- | --- | --- |
-| 1 | | | High / Medium / Low | Fix / Reject / Defer |
-| 2 | | | High / Medium / Low | Fix / Reject / Defer |
+| 1 | Touching interval falsely flagged as overlap (AC4) | Steps: Select Room 101 (existing booking 10:00-11:00), enter candidate 11:00-12:00, click Check. Expected: Available (AC4 explicitly allows touching endpoints). Observed: Unavailable because v1 used <= and >= on boundary endpoints. | High | Fix |
+| 2 | Missing supplied current time control and system clock dependency (AC1) | Steps: Attempt to test case T6 (candidate 09:00-09:30 with supplied current time 09:00). Expected: An input field allowing user to supply current time = 09:00 and rejecting start <= now. Observed: v1 read system time new Date(), offering no way to supply current time; T6 was Not testable. | High | Fix |
+| 3 | Lack of understandable validation error messages on invalid input ranges (AC6) | Steps: Enter reversed interval 12:00 to 11:00 and click Check. Expected: Unavailable decision accompanied by an understandable validation error explaining that start time must precede end time. Observed: Generic Unavailable badge with no explanatory message. | Medium | Fix |
 
 ---
 
