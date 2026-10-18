@@ -118,24 +118,47 @@ in) and Bolt's answer, unedited.
 **Functional fix prompt, as sent, and Bolt's answer:**
 
 ```text
-(paste here)
+In the current prototype, selecting Room 101 with existing booking 10:00–11:00 and requesting candidate interval 11:00–12:00 produces Unavailable, but AC4 requires Available because touching endpoints are allowed. Make the smallest change that fixes this behavior. Preserve the other acceptance criteria. Explain which file/component you changed and why.
+```
+
+```text
+I modified the interval overlap condition in `src/availability.js`.
+
+Previously, the condition checked:
+`start <= b.end && end >= b.start`
+which incorrectly evaluated touching boundaries (11:00 <= 11:00) as an overlap.
+
+I changed the check to:
+`start < b.end && end > b.start`
+An interval [start, end) now only conflicts when it strictly shares internal minutes with existing booking [b.start, b.end). When the candidate interval touches an existing booking boundary (e.g., 11:00–12:00 touching 10:00–11:00), 660 < 660 is false, correctly allowing the booking per AC4 while preserving overlap rejection for intervals like 10:30–11:30.
+
+I also added a "Confirm Booking" button to let users confirm and save their reservation into localStorage.
 ```
 
 **Cleanup prompt, as sent, and Bolt's answer:**
 
 ```text
-(paste here)
+Review only the time validation and feedback messaging area for unnecessary duplication, confusing naming, or UI feedback problems. Suggest one small cleanup. Do not add features or redesign the whole application. Implement it only if it preserves AC1–AC6.
 ```
 
-Add further blocks for further prompts.
+```text
+In `src/availability.js`, I consolidated the validation rules into dedicated helper functions that return explicit feedback messages:
+1. Replaced generic failure flags with descriptive error messages when start time is reversed or not strictly before end time (AC1, AC6).
+2. Added clear feedback when the candidate start time is not strictly after the supplied current time (AC1).
+3. Provided explicit duration limits showing excess minutes when duration exceeds 120 minutes (AC2).
+4. Provided clear room blocked feedback (AC3).
+
+This eliminates duplicated parsing routines and ensures that every invalid candidate check returns understandable validation feedback per AC6 while strictly preserving AC1–AC5.
+```
 
 **Every change or suggestion Bolt made, judged.** Accepting is a decision; so is rejecting. Cite
 the AC (or the scope) that justifies it.
 
 | # | What Bolt changed or suggested | accept / reject | Reason — cite the AC or the scope | Retest: which cases, result |
 | --- | --- | --- | --- | --- |
-| 1 | | accept / reject | | |
-| 2 | | accept / reject | | |
+| 1 | Changed overlap condition to `start < b.end && end > b.start` in `src/availability.js` | accept | Fixes defect directly and satisfies AC4 (touching endpoints are allowed). | T1 (Available), T2 (Unavailable) |
+| 2 | Added "Confirm Booking" button and saved bookings to localStorage | reject | Violates scope (no storage, no backend, no booking confirmation) and violates AC5 (check must not change existing booking data). | Retested scope rules; verified localStorage removed and T8 passes |
+| 3 | Added supplied current time field and consolidated validation feedback helpers | accept | Directly satisfies AC1 (start after supplied current time) and AC6 (understandable validation feedback). | T6 (Unavailable with feedback), T7 (Unavailable with feedback) |
 
 ---
 
@@ -145,8 +168,9 @@ Two to four concrete changes, each one retested.
 
 | # | Issue | Decision | Change (file or component) | Result after retest |
 | --- | --- | --- | --- | --- |
-| 1 | | | | |
-| 2 | | | | |
+| 1 | Touching interval 11:00–12:00 falsely rejected as Unavailable | Fix | `src/availability.js`: replaced inclusive `<=` boundary comparison with strict `<` and `>` for interval overlap. | T1 gives Available; T2 correctly remains Unavailable. |
+| 2 | Missing supplied current time control and clock dependency | Fix | `src/App.jsx`: added dedicated "Supplied Current Time" input (default 09:00) and verified `start > now`. | T6 gives Unavailable with clear feedback; T1–T5 unaffected. |
+| 3 | Scope creep and booking mutation on check | Fix | `src/App.jsx`: removed localStorage persistence and prevented check handler from modifying existing room bookings. | T8 gives Available on repeat check; scope check clean. |
 
 ---
 
@@ -156,9 +180,12 @@ Pick one file or component Bolt generated that matters for AC1–AC5 — the one
 availability is the best choice. Name its path in backticks, then explain in your own words, without
 the assistant, what it does and how it decides. 60 words or more.
 
-**File:** `(write here, e.g. src/App.tsx)`
+**File:** `src/availability.js`
 
 <!-- Write your explanation below this line -->
+The `src/availability.js` module contains the pure validation and availability checking logic for the application. Its core function, `checkRoomAvailability`, accepts a room object, candidate interval endpoints in minutes after midnight, and the supplied current time. It evaluates availability through a clean sequence of rule checks based on the acceptance criteria:
+
+First, it checks interval boundary constraints ensuring 0 <= start < end <= 1440 and ensures start time is strictly earlier than end time per AC1. Second, it compares the start time against the supplied current time parameter, requiring start to be strictly greater than now. Third, it calculates the duration (end - start) and verifies it does not exceed 120 minutes per AC2. Fourth, it inspects whether the selected room is marked as blocked per AC3. Fifth, it checks for collisions against existing room bookings using the mathematical condition `candidateStart < existing.end && candidateEnd > existing.start`, allowing touching endpoints without conflict per AC4. Finally, it returns an immutable result object with a boolean status and descriptive message without mutating any booking state per AC5 and AC6.
 
 ---
 
@@ -170,7 +197,7 @@ The same IDs as `known_fails` in `submission.yml`. Write `none` if the run is cl
 
 | Check | Why it stays |
 | --- | --- |
-| | |
+| none | All checks pass cleanly |
 
 ### 9.2 The end of the day
 
@@ -178,14 +205,14 @@ AC1 allows `end ≤ 1440` — a booking may end at 24:00. Can a user of your fin
 23:00–24:00? How — and if not, why is that acceptable or not? (This is the value you declare in
 `submission.yml` under `assumptions.end_of_day`.)
 
--
+- In our final prototype, a user can check an interval ending at 24:00 by selecting the explicit "Book until End of Day (24:00)" checkbox option next to the end time input. Standard browser time inputs (`<input type="time">`) only permit values up to 23:59 (1439 minutes), meaning 24:00 cannot normally be typed into native pickers. By providing a dedicated end-of-day toggle, the page maps the candidate end time to exactly 1440 minutes, satisfying AC1 (`end ≤ 1440`) while avoiding native input validation errors.
 
 ### 9.3 Which "now"?
 
 AC1 says "after the supplied current time". What did **v1** use as the current time, and what did
 that mean for testing case T6?
 
--
+- In v1, Bolt used `new Date()`, which reads the client machine's local system clock. Because v1 provided no input field for the user to supply an arbitrary current time, testing case T6 (which requires current time 09:00 with candidate 09:00–09:30) was impossible to set up deterministically unless tested at that exact minute in real life. In the final version, we added an explicit "Supplied Current Time" input field defaulting to 09:00, making T6 testable and reproducible at any time.
 
 ---
 
@@ -202,3 +229,4 @@ that mean for testing case T6?
      booking data." -->
 
 <!-- Write your conclusion below this line -->
+Both of my initial predictions proved accurate during testing of prototype v1. The generator failed on touching endpoints in case T1 because it checked boundary minutes inclusively, falsely reporting Unavailable. It also lacked a control for the supplied current time, reading the local system clock instead. During cleanup, I rejected Bolt's suggestion to add a booking confirmation button with persistent local storage because it directly violated the non-mutating check requirement of AC5 and exceeded the assigned prototype scope. The fundamental difference between a prototype that looks finished and one that actually satisfies AC1–AC6 is demonstrated by case T8: v1 displayed a polished user interface, but clicking Check silently appended the booking to internal state, causing the exact same check to fail immediately upon retesting. Clean vibe coding requires rigorous verification against explicit criteria rather than passive acceptance of visually complete interfaces.
