@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Campus Room Availability Checker</title>
+  <link rel="stylesheet" href="./src/index.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1>Smart Campus Room Availability Checker</h1>
+        <p>Verify room availability for meeting slots according to campus booking policy.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="room-select">Selected Room</label>
+          <select id="room-select" class="form-control">
+            <option value="room-101" selected>Room 101 (Seminar Room)</option>
+            <option value="room-102">Room 102 (Lab - Blocked)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="current-time">Supplied Current Time</label>
+          <input type="time" id="current-time" class="form-control" value="09:00">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="room-blocked-toggle">
+          Mark room as blocked (Maintenance / Reserved)
+        </label>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="start-time">Candidate Start Time</label>
+          <input type="time" id="start-time" class="form-control" value="11:00">
+        </div>
+
+        <div class="form-group">
+          <label for="end-time">Candidate End Time</label>
+          <input type="time" id="end-time" class="form-control" value="12:00">
+          <label class="checkbox-label">
+            <input type="checkbox" id="end-of-day-toggle">
+            Book until End of Day (24:00)
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <button id="btn-check" class="btn">Check Availability</button>
+      </div>
+
+      <div id="result-card" class="result-card available" style="display: none;">
+        <div class="result-header">
+          <strong>Availability Decision:</strong>
+          <span id="result-badge" class="badge badge-available">Available</span>
+        </div>
+        <div id="result-reason" class="result-reason">The selected room is available for the requested slot.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="bookings-header" style="font-size: 16px; margin-bottom: 4px;">Existing Bookings for Room 101 (Seminar Room)</h3>
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">
+        Checking availability is purely read-only and does not mutate booking records (AC5).
+      </p>
+      <div id="bookings-list">
+        <div class="booking-item">
+          <span>Calculus Discussion</span>
+          <strong>10:00 - 11:00</strong>
+        </div>
+      </div>
+
+      <ul class="rules-list">
+        <li>• AC1: Candidate interval [start, end) must be strictly after supplied current time.</li>
+        <li>• AC2: Maximum booking length is 120 minutes.</li>
+        <li>• AC3: Blocked rooms cannot be booked.</li>
+        <li>• AC4: Overlaps are rejected; touching endpoints (e.g. 11:00-12:00 after 10:00-11:00) are allowed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const ROOMS = {
+      'room-101': {
+        name: 'Room 101 (Seminar Room)',
+        isBlocked: false,
+        bookings: [{ id: 'b1', title: 'Calculus Discussion', start: 600, end: 660, timeStr: '10:00 - 11:00' }]
+      },
+      'room-102': {
+        name: 'Room 102 (Lab - Blocked)',
+        isBlocked: true,
+        bookings: []
+      }
+    };
+
+    function toMinutes(t) {
+      if (!t) return -1;
+      if (t === '24:00') return 1440;
+      const parts = t.split(':');
+      if (parts.length !== 2) return -1;
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    }
+
+    function formatMinutes(min) {
+      if (min === 1440) return '24:00';
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    }
+
+    const roomSelect = document.getElementById('room-select');
+    const currentTimeInput = document.getElementById('current-time');
+    const blockedToggle = document.getElementById('room-blocked-toggle');
+    const startTimeInput = document.getElementById('start-time');
+    const endTimeInput = document.getElementById('end-time');
+    const endOfDayToggle = document.getElementById('end-of-day-toggle');
+    const btnCheck = document.getElementById('btn-check');
+    const resultCard = document.getElementById('result-card');
+    const resultBadge = document.getElementById('result-badge');
+    const resultReason = document.getElementById('result-reason');
+    const bookingsHeader = document.getElementById('bookings-header');
+    const bookingsList = document.getElementById('bookings-list');
+
+    endOfDayToggle.addEventListener('change', () => {
+      endTimeInput.disabled = endOfDayToggle.checked;
+      if (endOfDayToggle.checked) {
+        endTimeInput.value = '23:59';
+      }
+    });
+
+    function renderBookings() {
+      const room = ROOMS[roomSelect.value];
+      bookingsHeader.textContent = 'Existing Bookings for ' + room.name;
+      bookingsList.innerHTML = '';
+      if (room.bookings.length === 0) {
+        bookingsList.innerHTML = '<div style="color: #64748b; font-size: 14px;">No existing bookings for today.</div>';
+        return;
+      }
+      room.bookings.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'booking-item';
+        div.innerHTML = '<span>' + b.title + '</span><strong>' + b.timeStr + '</strong>';
+        bookingsList.appendChild(div);
+      });
+    }
+
+    roomSelect.addEventListener('change', () => {
+      const room = ROOMS[roomSelect.value];
+      blockedToggle.checked = room.isBlocked;
+      renderBookings();
+    });
+
+    function checkAvailability() {
+      const room = ROOMS[roomSelect.value];
+      const startMin = toMinutes(startTimeInput.value);
+      const endMin = endOfDayToggle.checked ? 1440 : toMinutes(endTimeInput.value);
+      const currentMin = toMinutes(currentTimeInput.value);
+      const isRoomBlocked = blockedToggle.checked || room.isBlocked;
+
+      // AC1: Interval bounds
+      if (startMin < 0 || endMin > 1440) {
+        showResult(false, 'Interval must fall within 00:00 and 24:00 (0 to 1440 minutes).');
+        return;
+      }
+
+      // AC1 & AC6: start must precede end
+      if (startMin >= endMin) {
+        showResult(false, 'Start time (' + formatMinutes(startMin) + ') must be strictly earlier than end time (' + formatMinutes(endMin) + ').');
+        return;
+      }
+
+      // AC1: start is after the supplied current time
+      if (startMin <= currentMin) {
+        showResult(false, 'Start time (' + formatMinutes(startMin) + ') must be strictly after the supplied current time (' + formatMinutes(currentMin) + ').');
+        return;
+      }
+
+      // AC2: Max 120 minutes
+      const duration = endMin - startMin;
+      if (duration > 120) {
+        showResult(false, 'Booking duration (' + duration + ' min) exceeds maximum limit of 120 minutes (AC2).');
+        return;
+      }
+
+      // AC3: Room blocked
+      if (isRoomBlocked) {
+        showResult(false, 'Room ' + room.name + ' is blocked and unavailable for booking (AC3).');
+        return;
+      }
+
+      // AC4: Overlap rejection, touching allowed: start < b.end && end > b.start
+      const conflict = room.bookings.find(b => startMin < b.end && endMin > b.start);
+      if (conflict) {
+        showResult(false, 'Requested interval overlaps with existing booking: ' + conflict.title + ' (' + conflict.timeStr + ').');
+        return;
+      }
+
+      // AC5: Clear Available decision, no state mutation
+      showResult(true, 'The selected room is available for the requested time slot (' + duration + ' min).');
+    }
+
+    function showResult(available, reason) {
+      resultCard.style.display = 'block';
+      if (available) {
+        resultCard.className = 'result-card available';
+        resultBadge.className = 'badge badge-available';
+        resultBadge.textContent = 'Available';
+      } else {
+        resultCard.className = 'result-card unavailable';
+        resultBadge.className = 'badge badge-unavailable';
+        resultBadge.textContent = 'Unavailable';
+      }
+      resultReason.textContent = reason;
+    }
+
+    btnCheck.addEventListener('click', checkAvailability);
+
+    // Support query parameters for automated verification runs
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('room')) roomSelect.value = params.get('room');
+    if (params.get('blocked') === 'true') blockedToggle.checked = true;
+    if (params.get('now')) currentTimeInput.value = params.get('now');
+    if (params.get('start')) startTimeInput.value = params.get('start');
+    if (params.get('end')) endTimeInput.value = params.get('end');
+    if (params.get('endOfDay') === 'true') {
+      endOfDayToggle.checked = true;
+      endTimeInput.disabled = true;
+    }
+
+    renderBookings();
+
+    if (params.get('autocheck') === 'true') {
+      checkAvailability();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+# week-06/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+# If you cannot run Python, fill the file by hand against the comments — a malformed
+# file costs you nothing if the content is there.
+
+schema: 1
+week: "06"
+
+student:
+  name: Aidar Bekzhan
+  student_id: 24B031641
+  github: aidarbekzhan
+
+assistant:
+  tool: Bolt.new
+  model: Claude 3.5 Sonnet
+  fallback_reason: none
+
+bolt:
+  project_url: not-shared
+
+counts:
+  issues: 3
+  cleanup_prompts: 2
+  change_log_rows: 3
+  v1_matches: 5
+  final_matches: 9
+
+checker:
+  pass: 27
+  fail: 0
+  error: 0
+  commit: 0b777cd
+  known_fails: []
+
+assumptions:
+  end_of_day: end-of-day-option
+
+review_findings:
+  - "AC4: v1 used start <= b.end && end >= b.start, falsely marking touching bookings like 11:00-12:00 as Unavailable (T1)."
+  - "AC1: v1 relied on system clock new Date() instead of a supplied current time, making T6 impossible to test deterministically."
+  - "AC5: Bolt suggested auto-saving candidate checks into localStorage, which violated the scope and caused T8 to fail on re-check."
+
+honesty:
+  v1_export_unedited: yes
+  screenshots_unedited: yes
+  can_explain_component_without_ai: yes
+  ai_usage_disclosed: yes
