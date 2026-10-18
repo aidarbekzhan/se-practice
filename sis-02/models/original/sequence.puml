@@ -1,0 +1,29 @@
+@startuml
+actor Student as "Student"
+participant RegistrationService as "RegistrationService"
+participant CourseCatalog as "CourseCatalog"
+participant CourseOffering as "CourseOffering"
+participant Enrollment as "Enrollment"
+
+Student -> CourseCatalog : browseOfferings(semester)
+CourseCatalog --> Student : displayCatalog(code, title, offering, availablePlaces)
+
+Student -> RegistrationService : registerForOffering(studentId, offeringId)
+
+RegistrationService -> CourseOffering : checkCapacity(offeringId)
+CourseOffering --> RegistrationService : placesAvailable
+
+alt placesAvailable > 0
+    RegistrationService --> Student : confirmRegistration(offeringId)
+    RegistrationService -> CourseOffering : hasStudentEnrolled(studentId)
+    CourseOffering --> RegistrationService : isEnrolled
+    alt isEnrolled == false
+        RegistrationService -> Enrollment : createEnrollment(studentId, offeringId)
+        Enrollment --> RegistrationService : enrollmentCreated
+    else isEnrolled == true
+        RegistrationService --> Student : rejectAlreadyEnrolled("already enrolled")
+    end
+else placesAvailable <= 0
+    RegistrationService --> Student : rejectCourseFull("course full")
+end
+@enduml

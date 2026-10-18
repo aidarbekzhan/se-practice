@@ -1,0 +1,29 @@
+@startuml
+class Student {
+    +studentId : String
+    +name : String
+}
+
+class Course {
+    +courseCode : String
+    +courseTitle : String
+}
+
+class CourseOffering {
+    +semester : String
+    +capacity : int
+    +enrolledCount : int
+}
+
+class Enrollment {
+    +enrollmentId : String
+    +enrollmentDate : Date
+}
+
+Student "1" -- "0..*" Enrollment : registers >
+CourseOffering "1" -- "0..*" Enrollment : includes >
+Course "1" -- "1..*" CourseOffering : scheduled_as >
+
+note "Capacity (R2): Total enrollments cannot exceed capacity." as N1
+N1 .. CourseOffering
+@enduml
