@@ -1,0 +1,47 @@
+# SIS #02 — the declaration. FACTS ONLY: every explanation stays in report.md.
+#
+# Fill this in LAST, after your final run of the checker, then validate it:
+#     python tests/check_sis.py
+#     python tests/validate_submission.py
+#
+# Your checker numbers are re-run by the instructor at the head of your pull request.
+# Numbers that do not match what that commit produces cost the whole workflow criterion.
+# A FAIL you report honestly — here and under known_fails — costs nothing extra.
+#
+# Format rules: two spaces for indentation, never tabs. Leave the keys exactly as they are.
+
+schema: 1
+assignment: "sis-02"            # do not edit
+
+student:
+  name: Aidar Bekzhan
+  student_id: 24B031641
+  group: CS (SITE)
+  github: aidarbekzhan
+
+assistant:
+  tool: Antigravity
+  model: Gemini 3.8 Flash
+
+checker:
+  pass: 44
+  fail: 0
+  error: 0
+  commit: d5161c0
+
+counts:
+  stories: 3
+  criteria: 6
+  exchanges: 4
+  review_decisions: 3
+  source_checks: 2
+  explanation_words: 252
+  reflection_words: 162
+
+walkthroughs:
+  T1: pass
+  T2: pass
+  T3: pass
+  T4: pass
+
+known_fails: []
