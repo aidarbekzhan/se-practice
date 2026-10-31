@@ -1,0 +1,49 @@
+schema: 1
+assignment: "sis-03"
+
+student:
+  name: Aidar Bekzhan
+  student_id: 24B031641
+  group: CS (SITE)
+  github: aidarbekzhan
+
+assistant:
+  tool: ChatGPT (OpenAI)
+  model: GPT-4o (version 2024-08-06)
+
+bolt:
+  model: Claude 3.5 Sonnet
+  project_url: not-shared
+
+language:
+  name: python
+  path: A
+
+reuse:
+  python_v1: week-05
+  web_v1: week-06
+
+checker:
+  pass: 55
+  fail: 0
+  error: 0
+  commit: 088261c
+
+counts:
+  tests: 16
+  exchanges: 4
+  issues: 2
+  critique_decisions: 3
+  reflection_words: 152
+
+cases:
+  python_final_matches: 11
+  page_final_matches: 12
+
+known_fails: []
+
+honesty:
+  v1_unedited: yes
+  screenshots_unedited: yes
+  results_observed: yes
+  ai_usage_disclosed: yes

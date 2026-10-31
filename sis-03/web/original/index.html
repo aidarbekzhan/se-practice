@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Campus Room Availability Checker (v1)</title>
+  <link rel="stylesheet" href="./src/index.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1>Smart Campus Room Availability Checker</h1>
+        <p>Check room availability and book meeting rooms on campus.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="room-select">Select Room</label>
+        <select id="room-select" class="form-control">
+          <option value="room-101" selected>Room 101 (Seminar Room)</option>
+          <option value="room-102">Room 102 (Lab - Blocked)</option>
+        </select>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="start-time">Start Time</label>
+          <input type="time" id="start-time" class="form-control" value="11:00">
+        </div>
+        <div class="form-group">
+          <label for="end-time">End Time</label>
+          <input type="time" id="end-time" class="form-control" value="12:00">
+        </div>
+      </div>
+
+      <div style="margin-top: 8px;">
+        <button id="btn-check" class="btn btn-primary">Check Availability</button>
+      </div>
+
+      <div id="result-box" class="result-card unavailable" style="display: none;">
+        <span id="result-badge" class="badge badge-unavailable">Unavailable</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="bookings-header" style="margin-bottom: 12px; font-size: 16px;">Existing Bookings for Room 101 (Seminar Room)</h3>
+      <div id="bookings-list">
+        <div class="booking-item">
+          <span>Calculus Discussion</span>
+          <strong>10:00 - 11:00</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ROOMS = {
+      'room-101': {
+        name: 'Room 101 (Seminar Room)',
+        isBlocked: false,
+        bookings: [{ id: 'b1', title: 'Calculus Discussion', start: 600, end: 660, timeStr: '10:00 - 11:00' }]
+      },
+      'room-102': {
+        name: 'Room 102 (Lab - Blocked)',
+        isBlocked: true,
+        bookings: []
+      }
+    };
+
+    function toMinutes(t) {
+      if (!t) return -1;
+      const parts = t.split(':');
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    }
+
+    const roomSelect = document.getElementById('room-select');
+    const startTimeInput = document.getElementById('start-time');
+    const endTimeInput = document.getElementById('end-time');
+    const btnCheck = document.getElementById('btn-check');
+    const resultBox = document.getElementById('result-box');
+    const resultBadge = document.getElementById('result-badge');
+    const bookingsHeader = document.getElementById('bookings-header');
+    const bookingsList = document.getElementById('bookings-list');
+
+    function renderBookings() {
+      const room = ROOMS[roomSelect.value];
+      bookingsHeader.textContent = 'Existing Bookings for ' + room.name;
+      bookingsList.innerHTML = '';
+      if (room.bookings.length === 0) {
+        bookingsList.innerHTML = '<div style="color: #64748b; font-size: 14px;">No existing bookings.</div>';
+        return;
+      }
+      room.bookings.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'booking-item';
+        div.innerHTML = '<span>' + b.title + '</span><strong>' + b.timeStr + '</strong>';
+        bookingsList.appendChild(div);
+      });
+    }
+
+    roomSelect.addEventListener('change', renderBookings);
+
+    function checkAvailability() {
+      const room = ROOMS[roomSelect.value];
+      const start = toMinutes(startTimeInput.value);
+      const end = toMinutes(endTimeInput.value);
+
+      // v1 defect: relies on system clock, no supplied current time
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      let available = true;
+
+      // AC1 & AC2: bounds and duration
+      if (start < 0 || end > 1440 || start >= end || (end - start) > 120 || start <= currentMinutes) {
+        available = false;
+      }
+
+      // AC3: room blocked
+      if (room.isBlocked) {
+        available = false;
+      }
+
+      // AC4 defect: touching endpoints treated as overlap
+      const overlaps = room.bookings.some(b => start <= b.end && end >= b.start);
+      if (overlaps) {
+        available = false;
+      }
+
+      // v1 defect: auto-adds booking on check and stores in localStorage
+      if (available) {
+        room.bookings.push({
+          id: 'b-' + Date.now(),
+          title: 'Checked Reservation',
+          start: start,
+          end: end,
+          timeStr: startTimeInput.value + ' - ' + endTimeInput.value
+        });
+        try {
+          localStorage.setItem('smart_campus_bookings', JSON.stringify(ROOMS));
+        } catch (e) {}
+        renderBookings();
+      }
+
+      resultBox.style.display = 'block';
+      if (available) {
+        resultBox.className = 'result-card available';
+        resultBadge.className = 'badge badge-available';
+        resultBadge.textContent = 'Available';
+      } else {
+        resultBox.className = 'result-card unavailable';
+        resultBadge.className = 'badge badge-unavailable';
+        resultBadge.textContent = 'Unavailable';
+      }
+    }
+
+    btnCheck.addEventListener('click', checkAvailability);
+
+    // Read query params for test cases
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('room')) roomSelect.value = params.get('room');
+    if (params.get('start')) startTimeInput.value = params.get('start');
+    if (params.get('end')) endTimeInput.value = params.get('end');
+    renderBookings();
+
+    if (params.get('autocheck') === 'true') {
+      checkAvailability();
+    }
+  </script>
+</body>
+</html>
