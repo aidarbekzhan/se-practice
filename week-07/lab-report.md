@@ -72,23 +72,62 @@ five columns.
 
 ## 4. Task 3 — the generation prompt and the first suite
 
-**The prompt exactly as I sent it.** Use the deck's prompt with `[our test framework]` replaced by
-`Vitest`, followed by the case table from section 3:
+**The prompt exactly as I sent it.** Use the deck's prompt with [our test framework] replaced by
+Vitest, followed by the case table from section 3:
 
-```text
-(paste here)
-```
+`	ext
+Generate tests for the existing booking function using Vitest. Use AC1–AC6 and the reviewed case table below.
+
+Import the real function used by the page. Keep its code unchanged. Use fixed time and fresh fixtures. Assert exact decisions and unchanged booking data.
+
+Return the test file, run command, and AC mapping. Flag unclear requirements. We will run the tests ourselves.
+
+Function signature:
+export function canBook({ start, end, now, blocked, bookings }): boolean
+
+Reviewed Case Table (Default fixture: now = 540, blocked = false, bookings = [{ start: 600, end: 660 }]):
+- T01: 660–720 (touching after) -> true (AC4)
+- T02: 540–570 (starts now) -> false (AC1)
+- T03: 720–720 (zero duration) -> false (AC1)
+- T04: 750–720 (reversed) -> false (AC1)
+- T05: 1380–1441 (past day end) -> false (AC1)
+- T06: 720–840 (120 minutes) -> true (AC2)
+- T07: 720–841 (121 minutes) -> false (AC2)
+- T08: 570–600 (touching before) -> true (AC4)
+- T09: 630–690 (partial overlap) -> false (AC4)
+- T10: 570–690 (contains booking) -> false (AC4)
+- T11: 615–645 (inside booking) -> false (AC4)
+- T12: 600–660 (identical interval) -> false (AC4)
+- T13: 660–720, blocked = true -> false (AC3)
+- T14: 630–690, bookings = [] -> true (AC4)
+- AC5: an Available request — bookings after call equal bookings before -> true, data unchanged (AC5)
+`
 
 **The assistant's answer: run command, AC mapping and any unclear requirements it flagged,
-pasted unedited.** Its test file goes to `suites/first/` and is not pasted here:
+pasted unedited.** Its test file goes to suites/first/ and is not pasted here:
 
-```text
-(paste here)
-```
+`	ext
+Run command:
+npx vitest run src/booking.test.js
 
-The first suite was saved to `suites/first/` **before** I changed anything in it: yes / no
+AC Mapping:
+- AC1 (Candidate bounds 0 <= start < end <= 1440 and start > now):
+  T02, T03, T04, T05
+- AC2 (Maximum 120 minutes duration):
+  T06, T07
+- AC3 (Blocked room rejection):
+  T13
+- AC4 (Overlap prevention & touching endpoints allowed):
+  T01, T08, T09, T10, T11, T12, T14
+- AC5 (Decision without mutating existing booking data):
+  AC5
 
----
+Flagged unclear requirements:
+1. Behavior on malformed existing records: The specification does not define whether canBook should throw or ignore existing bookings with reversed times (start > end).
+2. Boundary interpretation on 120 minutes: The prompt specifies reject longer than 120 minutes, but in generated T06 the threshold was evaluated strictly as >= 120 minutes.
+`
+
+The first suite was saved to suites/first/ **before** I changed anything in it: yes
 
 ## 5. Task 4 — review of the first suite
 
@@ -225,5 +264,6 @@ the value you declare in `submission.yml` under `assumptions.invalid_existing_bo
      pass, M1 would have become the real behaviour." -->
 
 <!-- Write your conclusion below this line -->
+
 
 
