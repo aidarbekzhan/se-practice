@@ -42,34 +42,33 @@ I created src/booking.js exporting the canonical canBook({ start, end, now, bloc
 
 ## 3. Task 2 — the test plan
 
-Default fixture: `now = 540`, `blocked = false`, `bookings = [{ start: 600, end: 660 }]`, fresh
+Default fixture: 
+ow = 540, locked = false, ookings = [{ start: 600, end: 660 }], fresh
 for every test. **The Expected column comes from AC1–AC4, never from the code.** Write the
 **reason** for each expected result **before** you send the generation prompt.
 
 | ID | Candidate / changed input | Expected | AC | Reason (in your words) |
 | --- | --- | --- | --- | --- |
-| T01 | 660–720 (touching after) | true | AC4 | |
-| T02 | 540–570 (starts now) | false | AC1 | |
-| T03 | 720–720 (zero duration) | false | AC1 | |
-| T04 | 750–720 (reversed) | false | AC1 | |
-| T05 | 1380–1441 (past day end) | false | AC1 | |
-| T06 | 720–840 (120 minutes) | true | AC2 | |
-| T07 | 720–841 (121 minutes) | false | AC2 | |
-| T08 | 570–600 (touching before) | true | AC4 | |
-| T09 | 630–690 (partial overlap) | false | AC4 | |
-| T10 | 570–690 (contains booking) | false | AC4 | |
-| T11 | 615–645 (inside booking) | false | AC4 | |
-| T12 | 600–660 (identical interval) | false | AC4 | |
-| T13 | 660–720, blocked = true | false | AC3 | |
-| T14 | 630–690, bookings = [] | true | AC4 | |
-| AC5 | an Available request — the bookings after the call equal the bookings before | true, data unchanged | AC5 | |
-| X1 | | | | |
-| X2 | | | | |
+| T01 | 660–720 (touching after) | true | AC4 | Candidate starts at 660 where the existing booking ends; endpoints touch but intervals do not overlap |
+| T02 | 540–570 (starts now) | false | AC1 | Candidate start equals current time 540; AC1 requires start to be strictly after now |
+| T03 | 720–720 (zero duration) | false | AC1 | Candidate start equals end, violating the strict inequality start < end required by AC1 |
+| T04 | 750–720 (reversed) | false | AC1 | Candidate start is greater than end, violating 0 <= start < end defined in AC1 |
+| T05 | 1380–1441 (past day end) | false | AC1 | Candidate end 1441 exceeds the maximum day limit of 1440 minutes defined in AC1 |
+| T06 | 720–840 (120 minutes) | true | AC2 | Booking duration is exactly 120 minutes (840 - 720), satisfying the maximum allowed duration in AC2 |
+| T07 | 720–841 (121 minutes) | false | AC2 | Booking duration is 121 minutes (841 - 720), strictly exceeding the 120-minute limit in AC2 |
+| T08 | 570–600 (touching before) | true | AC4 | Candidate ends at 600 where existing booking begins; endpoints touch without overlap per AC4 |
+| T09 | 630–690 (partial overlap) | false | AC4 | Candidate overlaps existing booking [600, 660] during interval [630, 660], so AC4 rejects it |
+| T10 | 570–690 (contains booking) | false | AC4 | Candidate completely envelops existing booking [600, 660], overlapping it over its entire duration |
+| T11 | 615–645 (inside booking) | false | AC4 | Candidate is entirely enclosed within existing booking [600, 660], creating an overlap |
+| T12 | 600–660 (identical interval) | false | AC4 | Candidate coincides exactly with existing booking [600, 660], causing total conflict per AC4 |
+| T13 | 660–720, blocked = true | false | AC3 | The room is marked as blocked; AC3 explicitly forbids any bookings in blocked rooms |
+| T14 | 630–690, bookings = [] | true | AC4 | No existing bookings are registered for the room, so no collision can occur under AC4 |
+| AC5 | an Available request — the bookings after the call equal the bookings before | true, data unchanged | AC5 | Pure availability evaluation must not modify the room's booking records or state in-place |
+| X1 | 1320–1440 (exact day end boundary) | true | AC1 | Candidate ends at exactly 1440 with duration 120 minutes and start after now; fully valid boundary slot |
+| X2 | 660–720, bookings = [{ start: 600, end: 660 }, { start: 720, end: 780 }] | true | AC4 | Candidate simultaneously touches both existing bookings without overlapping either interval |
 
 X1 and X2 are **your own two cases**: a boundary or a state that T01–T14 do not reach. Fill all
 five columns.
-
----
 
 ## 4. Task 3 — the generation prompt and the first suite
 
@@ -226,4 +225,5 @@ the value you declare in `submission.yml` under `assumptions.invalid_existing_bo
      pass, M1 would have become the real behaviour." -->
 
 <!-- Write your conclusion below this line -->
+
 
