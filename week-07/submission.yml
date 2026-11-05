@@ -1,0 +1,66 @@
+# week-07/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+# If you cannot run Python, fill the file by hand against the comments — a malformed
+# file costs you nothing if the content is there.
+
+schema: 1
+week: "07"
+
+student:
+  name: Aidar Bekzhan
+  student_id: 25B031167
+  github: aidarbekzhan
+
+assistant:
+  tool: Bolt.new
+  model: Claude 3.5 Sonnet
+
+project:
+  baseline: week-06
+  bolt_url: not-shared
+  vitest: 4.1.12
+
+counts:
+  tests_first: 15
+  tests_final: 17
+  first_run_failed: 1
+  review_decisions: 3
+  mutants_detected: 3
+
+checker:
+  # Numbers from YOUR last run of: python tests/check_suite.py
+  # They must add up to the number of checks it runs (33).
+  # Report them as they came out.
+  # A FAIL you report and explain in lab-report.md costs you nothing. A hidden one costs the criterion.
+  pass: 33
+  fail: 0
+  error: 0
+  commit: 4e05e25
+  known_fails: []
+
+assumptions:
+  # No AC says what canBook does when an EXISTING booking is reversed: {start: 700, end: 650}.
+  # Call your function with that booking and a 660-720 request, write down what it returns,
+  # and defend it in lab-report.md §9.3. Any answer is acceptable. Not checking is not.
+  invalid_existing_booking: returns-true
+
+review_findings:
+  # Three or more. One line each, and each one names what it is about: a case (T01-T14, X1, X2),
+  # an AC, a mutant (M1-M3), or a file.
+  # Worthless:        "The AI tests were mostly fine"
+  # Worth everything: "T06: the first suite expected 720-840 to be rejected, but AC2 allows exactly 120 minutes"
+  - "T06: the first suite expected 720-840 to be rejected, but AC2 allows exactly 120 minutes"
+  - "T01: the assistant used .toBeTruthy(), which was hardened to exact boolean .toBe(true)"
+  - "M1: mutant rejecting duration >= 120 was successfully detected by test T06"
+
+honesty:
+  first_suite_unedited: yes
+  outputs_unedited: yes
+  mutants_restored: yes
+  ai_usage_disclosed: yes
