@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
+import { canBook } from './booking';
 import { checkRoomAvailability, toMinutes, formatMinutes } from './availability.js';
 
 const INITIAL_ROOMS = [
@@ -40,9 +41,21 @@ export default function App() {
       isBlocked: isBlocked || currentRoom.isBlocked
     };
 
-    // Pure check: evaluates availability without modifying existing bookings (AC5)
+    // Evaluated via pure extracted canBook decision engine
+    const available = canBook({
+      start: startMinutes,
+      end: endMinutes,
+      now: currentMinutes,
+      blocked: roomToCheck.isBlocked,
+      bookings: roomToCheck.bookings
+    });
+
+    // Pure check: provides descriptive feedback while respecting canBook decision
     const result = checkRoomAvailability(roomToCheck, startMinutes, endMinutes, currentMinutes);
-    setDecision(result);
+    setDecision({
+      available,
+      reason: result.reason
+    });
   };
 
   return (

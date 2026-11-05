@@ -1,4 +1,4 @@
-# Week 07 — Lab report
+﻿# Week 07 — Lab report
 
 **Name:**
 **Group:**
@@ -13,15 +13,15 @@ grader find your answers by them. You can add rows to any table, but never remov
 
 | | |
 | --- | --- |
-| Project I continue (`week-06` = my Week 06 Bolt project, `starter` = the provided starter) | |
-| Bolt project link (or `not shared`, and why) | |
-| Assistant that generated the tests (tool) | |
-| Exact model (with its version, or `not displayed`) | |
-| Where I ran the tests (Bolt terminal / my computer / Codespace) | |
-| Vitest version (the `RUN  v…` line of a run) | |
-| Test command | |
-
----
+| Project I continue (week-06 = my Week 06 Bolt project, starter = the provided starter) | week-06 |
+| Bolt project link (or 
+ot shared, and why) | not shared (local prototype export from week-06) |
+| Assistant that generated the tests (tool) | Bolt.new |
+| Exact model (with its version, or 
+ot displayed) | Claude 3.5 Sonnet |
+| Where I ran the tests (Bolt terminal / my computer / Codespace) | my computer |
+| Vitest version (the RUN  v… line of a run) | 4.1.12 |
+| Test command | npx vitest run |
 
 ## 2. Task 1 — baseline and the booking function
 
@@ -29,17 +29,16 @@ grader find your answers by them. You can add rows to any table, but never remov
 
 | | |
 | --- | --- |
-| File and function (or "inside the page component") | |
-| Its inputs | |
-| What it returned | |
-| How the page used it | |
+| File and function (or "inside the page component") | src/availability.js, checkRoomAvailability |
+| Its inputs | room, candidateStartMinutes, candidateEndMinutes, suppliedCurrentMinutes |
+| What it returned | { available: boolean, reason: string } |
+| How the page used it | App.jsx called it inside handleCheck to update the decision state and render Available/Unavailable badges and reason |
 
-**What I changed to extract `canBook`.** Say which file it now lives in, what you moved, and why
+**What I changed to extract canBook.** Say which file it now lives in, what you moved, and why
 the behaviour did not change. Also say which file of the page now calls it. 40 words or more.
 
 <!-- Write below this line -->
-
----
+I created src/booking.js exporting the canonical canBook({ start, end, now, blocked, bookings }) function with a pure boolean return value. The core booking decision rules were extracted from src/availability.js into src/booking.js, checking bounds 0 to 1440, candidate start strictly after now, duration maximum of 120 minutes, room blocked state, and non-touching interval overlaps. The page component src/App.jsx now directly imports { canBook } from './booking' and invokes it within handleCheck to decide availability, while continuing to call vailability.js for descriptive feedback. Because identical condition thresholds and interval logic were preserved without alteration, the application behaviour remained completely unchanged.
 
 ## 3. Task 2 — the test plan
 
@@ -227,3 +226,4 @@ the value you declare in `submission.yml` under `assumptions.invalid_existing_bo
      pass, M1 would have become the real behaviour." -->
 
 <!-- Write your conclusion below this line -->
+
