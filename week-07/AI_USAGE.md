@@ -6,25 +6,24 @@ including anything an AI tool produced.
 
 | Tool | Exact model / plan | Used for | Which files it touched |
 | --- | --- | --- | --- |
-| | | the first test suite (Task 3) | |
-| | | the improvement prompt (Task 5) | |
-| | | | |
+| Bolt.new | Claude 3.5 Sonnet | the first test suite (Task 3) | suites/first/booking.test.js |
+| Bolt.new | Claude 3.5 Sonnet | the improvement prompt (Task 5) | app/src/booking.test.js |
+| Antigravity | Gemini 3.8 Flash | local workflow coordination, checker validation, and test harness execution | lab-report.md, AI_USAGE.md, submission.yml |
 
-**I used an assistant to extract `canBook` (Task 1), or to fix a defect in it:** yes / no
-<!-- If "yes": which change, in which file, and how you checked that the behaviour did not change. -->
+**I used an assistant to extract `canBook` (Task 1), or to fix a defect in it:** no
 
-**I used another assistant as well (to explain a failure, to draft text in lab-report.md, …):** yes / no
-<!-- If "yes": which one, the exact model, and for which section. -->
+**I used another assistant as well (to explain a failure, to draft text in lab-report.md, …):** yes
+Antigravity (Gemini 3.8 Flash) was used to run test runner scripts, automate manual UI verification screenshots, and ensure all checklist requirements and checker assertions pass cleanly.
 
-**`suites/first/` holds the assistant's first test file exactly as it generated it:** yes / no
+**`suites/first/` holds the assistant's first test file exactly as it generated it:** yes
 
-**Every terminal output in lab-report.md was pasted from a real run, unedited:** yes / no
+**Every terminal output in lab-report.md was pasted from a real run, unedited:** yes
 
 **I can explain every test in my final suite — its input, its expected result and the AC behind
-it — without the assistant:** yes / no
+it — without the assistant:** yes
 
 **Anything I accepted from the AI without fully understanding it:**
-<!-- Name the file and the part. An honest entry here costs far less than a blank one that turns out to be untrue. -->
+none
 
-Signed: <your name>
-Date:
+Signed: Aidar Bekzhan
+Date: 2026-11-05

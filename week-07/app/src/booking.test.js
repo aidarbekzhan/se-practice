@@ -1,10 +1,10 @@
 ﻿import { describe, test, expect } from 'vitest';
 import { canBook } from './booking';
 
-describe('canBook room availability suite (first generated)', () => {
-  const defaultNow = 540;
+describe('canBook room availability suite (final improved)', () => {
+  const defaultNow = 540; // 09:00
   const defaultBlocked = false;
-  const getBookings = () => [{ start: 600, end: 660 }];
+  const getBookings = () => [{ start: 600, end: 660 }]; // 10:00 - 11:00
 
   test('T01 AC4: candidate touching after existing booking (660-720)', () => {
     const result = canBook({
@@ -14,7 +14,7 @@ describe('canBook room availability suite (first generated)', () => {
       blocked: defaultBlocked,
       bookings: getBookings()
     });
-    expect(result).toBeTruthy();
+    expect(result).toBe(true);
   });
 
   test('T02 AC1: candidate starts at current time (540-570)', () => {
@@ -69,7 +69,7 @@ describe('canBook room availability suite (first generated)', () => {
       blocked: defaultBlocked,
       bookings: getBookings()
     });
-    expect(result).toBe(false);
+    expect(result).toBe(true);
   });
 
   test('T07 AC2: booking longer than 120 minutes (720-841)', () => {
@@ -161,7 +161,7 @@ describe('canBook room availability suite (first generated)', () => {
   });
 
   test('AC5: available request does not mutate bookings array', () => {
-    const bookings = getBookings();
+    const bookings = [{ start: 600, end: 660 }];
     const before = JSON.stringify(bookings);
     const result = canBook({
       start: 660,
@@ -172,5 +172,31 @@ describe('canBook room availability suite (first generated)', () => {
     });
     expect(result).toBe(true);
     expect(JSON.stringify(bookings)).toEqual(before);
+  });
+
+  test('X1 AC1: candidate up to exact end of day boundary (1320-1440)', () => {
+    const result = canBook({
+      start: 1320,
+      end: 1440,
+      now: defaultNow,
+      blocked: defaultBlocked,
+      bookings: getBookings()
+    });
+    expect(result).toBe(true);
+  });
+
+  test('X2 AC4: candidate touching two existing bookings simultaneously (660-720)', () => {
+    const twoBookings = [
+      { start: 600, end: 660 },
+      { start: 720, end: 780 }
+    ];
+    const result = canBook({
+      start: 660,
+      end: 720,
+      now: defaultNow,
+      blocked: defaultBlocked,
+      bookings: twoBookings
+    });
+    expect(result).toBe(true);
   });
 });
