@@ -159,7 +159,147 @@ Run them **on the buggy code**. Both must fail here. That is the evidence that e
 its bug.
 
 ```text
-(paste here)
+ RUN  v4.1.12 C:/Users/Aidar/se-practice/week-08/app
+
+ ❯ src/booking.test.js (19 tests | 6 failed) 38ms
+     × T01 AC4: candidate touching after existing booking (660-720) 17ms
+     ✓ T02 AC1: candidate starts at current time (540-570) 0ms
+     ✓ T03 AC1: zero duration candidate (720-720) 0ms
+     ✓ T04 AC1: reversed time interval (750-720) 0ms
+     ✓ T05 AC1: candidate interval past end of day (1380-1441) 0ms
+     ✓ T06 AC2: exactly 120 minutes booking (720-840) 0ms
+     ✓ T07 AC2: booking longer than 120 minutes (720-841) 0ms
+     × T08 AC4: candidate touching before existing booking (570-600) 1ms
+     ✓ T09 AC4: candidate partially overlapping existing booking (630-690) 0ms
+     ✓ T10 AC4: candidate containing existing booking (570-690) 0ms
+     ✓ T11 AC4: candidate inside existing booking (615-645) 0ms
+     ✓ T12 AC4: candidate identical to existing booking (600-660) 0ms
+     ✓ T13 AC3: booking request on blocked room (660-720) 0ms
+     ✓ T14 AC4: candidate when room has empty bookings (630-690) 0ms
+     × AC5: available request does not mutate bookings array 1ms
+     ✓ X1 AC1: candidate up to exact end of day boundary (1320-1440) 1ms
+     × X2 AC4: candidate touching two existing bookings simultaneously (660-720) 2ms
+     × BUG-A: candidate touching existing booking on boundary must be available (660-720) 3ms
+     × BUG-B: available non-overlapping candidate leaves bookings unmutated (720-780) 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/booking.test.js > canBook room availability suite (final improved) > T01 AC4: candidate touching after existing booking (660-720)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/booking.test.js:17:20
+     15|       bookings: getBookings()
+     16|     });
+     17|     expect(result).toBe(true);
+       |                    ^
+     18|   });
+     19|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/booking.test.js > canBook room availability suite (final improved) > T08 AC4: candidate touching before existing booking (570-600)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/booking.test.js:94:20
+     92|       bookings: getBookings()
+     93|     });
+     94|     expect(result).toBe(true);
+       |                    ^
+     95|   });
+     96|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/booking.test.js > canBook room availability suite (final improved) > AC5: available request does not mutate bookings array
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/booking.test.js:173:20
+    171|       bookings
+    172|     });
+    173|     expect(result).toBe(true);
+       |                    ^
+    174|     expect(JSON.stringify(bookings)).toEqual(before);
+    175|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/booking.test.js > canBook room availability suite (final improved) > X2 AC4: candidate touching two existing bookings simultaneously (660-720)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/booking.test.js:200:20
+    198|       bookings: twoBookings
+    199|     });
+    200|     expect(result).toBe(true);
+       |                    ^
+    201|   });
+    202|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/booking.test.js > canBook room availability suite (final improved) > BUG-A: candidate touching existing booking on boundary must be available (660-720)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/booking.test.js:211:20
+    209|       bookings: [{ start: 600, end: 660 }]
+    210|     });
+    211|     expect(result).toBe(true);
+       |                    ^
+    212|   });
+    213|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/booking.test.js > canBook room availability suite (final improved) > BUG-B: available non-overlapping candidate leaves bookings unmutated (720-780)
+AssertionError: expected '[{"start":600,"end":660},{"start":720…' to deeply equal '[{"start":600,"end":660}]'
+
+Expected: "[{"start":600,"end":660}]"
+Received: "[{"start":600,"end":660},{"start":720,"end":780}]"
+
+ ❯ src/booking.test.js:225:38
+    223|     });
+    224|     expect(result).toBe(true);
+    225|     expect(JSON.stringify(bookings)).toEqual(before);
+       |                                      ^
+    226|   });
+    227| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 13 passed (19)
+   Start at  22:24:50
+   Duration  740ms (transform 104ms, setup 0ms, import 163ms, tests 38ms, environment 0ms)
 ```
 
 ---
@@ -171,8 +311,8 @@ One row per defect. At least **BUG-A and BUG-B**. "Suspected cause" is your hypo
 
 | Defect | Test ID | Input | Expected | Actual | Suspected cause (line and why) |
 | --- | --- | --- | --- | --- | --- |
-| BUG-A | | | | | |
-| BUG-B | | | | | |
+| BUG-A | T01 | start: 660, end: 720, bookings: [{start: 600, end: 660}] | true | false | Line 11: start <= b.end && end >= b.start treats endpoint-touching intervals as conflicts due to non-strict inequality |
+| BUG-B | BUG-B | start: 720, end: 780, bookings: [{start: 600, end: 660}] | true and bookings unmutated | bookings mutated with new slot | Line 14: bookings.push({ start, end }) directly modifies the caller's array argument |
 
 ---
 

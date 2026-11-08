@@ -1,4 +1,4 @@
-﻿import { describe, test, expect } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { canBook } from './booking';
 
 describe('canBook room availability suite (final improved)', () => {
@@ -198,5 +198,30 @@ describe('canBook room availability suite (final improved)', () => {
       bookings: twoBookings
     });
     expect(result).toBe(true);
+  });
+
+  test('BUG-A: candidate touching existing booking on boundary must be available (660-720)', () => {
+    const result = canBook({
+      start: 660,
+      end: 720,
+      now: defaultNow,
+      blocked: defaultBlocked,
+      bookings: [{ start: 600, end: 660 }]
+    });
+    expect(result).toBe(true);
+  });
+
+  test('BUG-B: available non-overlapping candidate leaves bookings unmutated (720-780)', () => {
+    const bookings = [{ start: 600, end: 660 }];
+    const before = JSON.stringify(bookings);
+    const result = canBook({
+      start: 720,
+      end: 780,
+      now: defaultNow,
+      blocked: defaultBlocked,
+      bookings
+    });
+    expect(result).toBe(true);
+    expect(JSON.stringify(bookings)).toEqual(before);
   });
 });
