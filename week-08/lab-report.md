@@ -547,7 +547,22 @@ index 8814e8b..49034e3 100644
 The change as a diff, then the real output of the **full** suite. Every test must pass.
 
 ```text
-(paste here)
+diff --git a/week-08/app/src/booking.js b/week-08/app/src/booking.js
+index 49034e3..d175344 100644
+--- a/week-08/app/src/booking.js
++++ b/week-08/app/src/booking.js
+@@ -21,2 +21,0 @@
+-  // keep the room's list current with the slot that was just found free
+-  bookings.push({ start, end });
+
+ RUN  v4.1.12 C:/Users/Aidar/se-practice/week-08/app
+
+ ✓ src/booking.test.js (19 tests) 16ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  22:32:43
+   Duration  628ms (transform 90ms, setup 0ms, import 146ms, tests 16ms, environment 0ms)
 ```
 
 ---
@@ -558,14 +573,12 @@ The change as a diff, then the real output of the **full** suite. Every test mus
 
 Use the same IDs as `known_fails` in `submission.yml`. Write `none` if the run is clean.
 
-| Check | Why it stays |
-| --- | --- |
-| | |
+none
 
 ### 9.2 One limitation of AI-assisted debugging
 
 <!-- Use something that actually happened in sections 5-8. 20 words or more. -->
--
+A critical limitation of AI-assisted debugging is that conversational models fixate narrowly on the specific failing test error presented in the prompt, completely missing secondary defects such as illegal argument mutation until forced to follow a systematic verification protocol.
 
 ---
 
@@ -580,3 +593,4 @@ Use the same IDs as `known_fails` in `submission.yml`. Write `none` if the run i
      visible after the BUG-A patch: the AC5 test had been failing for the wrong reason." -->
 
 <!-- Write your conclusion below this line -->
+The bug-detector skill demonstrably improved debugging discipline: as highlighted in Section 7 under Minimal proposed patch and Correct root cause, only the skill-guided response separated the primary endpoint collision defect from the secondary state-mutation hypothesis instead of claiming a complete fix with a single line change. Our unit tests proved that endpoint-touching requests are strictly permitted without triggering overlap conflicts, and that evaluating room availability leaves the caller's booking collection completely unmutated. However, our initial test suite alone did not prove the absence of secondary bugs because the failure in BUG-A masked BUG-B by rejecting touching intervals before the mutation line could execute.
