@@ -1,0 +1,66 @@
+# week-08/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+# If you cannot run Python, fill the file by hand against the comments — a malformed
+# file costs you nothing if the content is there.
+
+schema: 1
+week: "08"
+
+student:
+  name: Aidar Bekzhan
+  student_id: 25B031167
+  github: aidarbekzhan
+
+assistant:
+  tool: Claude web
+  model: Claude 3.5 Sonnet
+
+skill:
+  environment: prompt-only
+  invoked: not-shown
+
+project:
+  language: js
+  vitest: 4.1.12
+
+counts:
+  tests_final: 19
+  buggy_failed: 4
+  defects_logged: 2
+  lines_changed: 2
+
+checker:
+  # Numbers from YOUR last run of: python tests/check_debugging.py
+  # They must add up to the number of checks it runs (31).
+  # Report them as they came out.
+  # A FAIL you report and explain in lab-report.md costs you nothing. A hidden one costs the criterion.
+  pass: 31
+  fail: 0
+  error: 0
+  commit: 1fc1e41
+  known_fails: []
+
+verdict:
+  # Your judgement from lab-report.md section 7, against the actual code - not a guess.
+  skill_helped: yes
+
+review_findings:
+  # Three or more. One line each, and each one names what it is about: BUG-A, BUG-B, a test
+  # (T01-T14, X1, X2, AC5), an AC, a step of the skill, or a file.
+  # Worthless:        "The skill made the answer better"
+  # Worth everything: "BUG-B: the AC5 test failed for the wrong reason until BUG-A was fixed - 660-720 was rejected before the push"
+  - "BUG-A: line 11 used non-strict inequalities <= and >= which rejected valid touching intervals in test T01"
+  - "BUG-B: line 14 mutated the caller's bookings array via push, which remained hidden behind BUG-A until endpoints were fixed"
+  - "AC4: strict inequality start < b.end && end > b.start correctly allows touching endpoints while catching overlaps"
+
+honesty:
+  buggy_function_pasted_unchanged: yes
+  same_input_both_chats: yes
+  outputs_unedited: yes
+  ai_usage_disclosed: yes
