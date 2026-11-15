@@ -1,0 +1,48 @@
+# week-09/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+
+schema: 1
+week: "09"
+
+student:
+  name: Aidar Bekzhan
+  student_id: 25B031167
+  github: aidarbekzhan
+
+assistant:
+  tool: Gemini
+  model: Gemini 3.8 Flash (High)
+  fresh_chats: yes
+
+calls:
+  r3: asked
+  first_run_s_fails: 9
+
+checker:
+  # Numbers from YOUR last run of: python tests/check_tool.py
+  # They must add up to the number of checks it runs (30). Report them as they came out.
+  # A FAIL you report and explain in lab-report.md costs you nothing. A hidden one costs the criterion.
+  pass: 30
+  fail: 0
+  error: 0
+  commit: 89d952b
+  known_fails: []
+
+review_findings:
+  - "S05: additionalProperties false is necessary because the schema otherwise silently accepts extraneous arguments like room: 204"
+  - "R2: the model correctly called check_room with blocked: true and end: 990, leaving the availability decision to canBook"
+  - "R3: the model asked for specific start and end times instead of hallucinating missing arguments or arbitrary afternoon hours"
+  - "AC1: start < end and start > now cannot be validated by JSON Schema because allowed keywords do not support cross-field relational comparisons"
+  - "A7: pushing directly to main must be blocked to prevent bypassing branch protection, peer reviews, and automated CI tests"
+
+honesty:
+  definition_written_by_me: yes
+  calls_unedited: yes
+  outputs_unedited: yes
+  ai_usage_disclosed: yes

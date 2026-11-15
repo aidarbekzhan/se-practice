@@ -1,0 +1,65 @@
+{
+  "name": "check_room",
+  "description": "Checks whether a room is available for booking given requested start and end times, the current time now, whether the room is blocked, and existing bookings. All times must be provided in whole minutes since midnight in the range 0 to 1440. This tool only checks room availability and does not save, reserve, create, or modify any bookings.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "start": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440,
+        "description": "Requested booking start time in whole minutes since midnight (0-1440)."
+      },
+      "end": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440,
+        "description": "Requested booking end time in whole minutes since midnight (0-1440)."
+      },
+      "now": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440,
+        "description": "Current time in whole minutes since midnight (0-1440)."
+      },
+      "blocked": {
+        "type": "boolean",
+        "description": "Whether the room is currently blocked for maintenance or admin reasons."
+      },
+      "bookings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1440,
+              "description": "Start time of existing booking in whole minutes since midnight (0-1440)."
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1440,
+              "description": "End time of existing booking in whole minutes since midnight (0-1440)."
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        },
+        "description": "List of existing bookings for the room, each with start and end times in minutes since midnight. Can be empty."
+      }
+    },
+    "required": [
+      "start",
+      "end",
+      "now",
+      "blocked",
+      "bookings"
+    ],
+    "additionalProperties": false
+  }
+}
