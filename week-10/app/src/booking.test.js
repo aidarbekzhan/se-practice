@@ -224,4 +224,13 @@ describe('canBook room availability suite (final improved)', () => {
     expect(result).toBe(true);
     expect(JSON.stringify(bookings)).toEqual(before);
   });
+  test('R1 AC4: candidate booking when bookings parameter is omitted or undefined', () => {
+    const result = canBook({
+      start: 660,
+      end: 720,
+      now: defaultNow,
+      blocked: defaultBlocked
+    });
+    expect(result).toBe(true);
+  });
 });
