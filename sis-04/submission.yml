@@ -1,0 +1,56 @@
+# SIS #04 — the declaration. FACTS ONLY: every explanation stays in report.md.
+#
+# Fill this in LAST, after your final run of the checker, then validate it:
+#     python tests/check_sis.py
+#     python tests/validate_submission.py
+#
+# Your checker numbers are re-run by the instructor at the head of your pull request.
+# Numbers that do not match what that commit produces cost the whole workflow criterion.
+# A FAIL you report honestly — here and under known_fails — costs nothing extra.
+#
+# Format rules: two spaces for indentation, never tabs. Leave the keys exactly as they are.
+
+schema: 1
+assignment: "sis-04"            # do not edit
+
+student:
+  name: Aidar Bekzhan
+  student_id: 24B031641
+  group: CS (SITE)
+  github: aidarbekzhan
+
+assistant:
+  tool: Antigravity
+  model: Gemini 3.8 Flash
+
+project:
+  start_from: week-08
+  baseline_commit: 0db177e
+  language: js
+  vitest: 4.1.12
+
+counts:
+  rooms: 5
+  tests_original: 19
+  tests_final: 26
+  risks: 3
+  exchanges: 3
+
+checker:
+  pass: 33
+  fail: 0
+  error: 0
+  commit: f508677
+  known_fails: []
+
+review_findings:
+  - "F1: filterRooms correctly includes rooms where capacity >= attendees, including exact boundary match (B5)"
+  - "F2: the assistant initially suggested equipment.some(), but F2 requires room to contain ALL selected items with .every()"
+  - "F3: checkRoom always evaluates blocked rooms as unavailable regardless of requested time interval"
+  - "AC4: strict inequality start < b.end && end > b.start allows touching endpoints (B3) while rejecting overlaps (B4)"
+
+honesty:
+  baseline_unchanged: yes
+  runs_unedited: yes
+  no_invented_metrics: yes
+  ai_usage_disclosed: yes

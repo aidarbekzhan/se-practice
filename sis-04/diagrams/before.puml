@@ -1,0 +1,15 @@
+@startuml
+package "Week-08 Starting Architecture" {
+  component [App.jsx] as App
+  component [availability.js] as Availability
+  component [booking.js] as Booking
+}
+
+App --> Booking : imports canBook()
+App --> Availability : imports checkRoomAvailability(), toMinutes(), formatMinutes()
+note right of App
+  Holds hardcoded INITIAL_ROOMS (only 2 rooms)
+  Evaluates availability twice (canBook & checkRoomAvailability)
+  Overrides room blocked state via local UI checkbox
+end note
+@enduml

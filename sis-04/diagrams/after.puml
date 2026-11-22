@@ -1,0 +1,37 @@
+@startuml
+package "SIS-04 Modular Architecture" {
+  component [App.jsx (UI)] as App
+  component [rooms.js] as Rooms
+  component [filter.js] as Filter
+  component [booking.js] as Booking
+  component [availability.js] as Availability
+}
+
+App --> Rooms : imports ROOMS catalog
+App --> Filter : imports filterRooms()
+App --> Booking : imports checkRoom()
+App --> Availability : imports toMinutes(), formatMinutes()
+Booking --> Booking : checkRoom() calls canBook() with room.blocked & room.bookings
+
+note right of Rooms
+  Room catalog data (ROOMS):
+  id, name, capacity, equipment,
+  blocked, bookings
+end note
+
+note right of Filter
+  filterRooms: F1 capacity >= attendees,
+  F2 room contains ALL selected equipment
+end note
+
+note right of Booking
+  canBook: AC1-AC5 pure interval checks
+  checkRoom: F3 blocked never available,
+  F5 evaluates chosen room's own bookings
+end note
+
+note right of App
+  UI presentation only: no rule logic,
+  no room data, responsive desktop & mobile
+end note
+@enduml
