@@ -1,0 +1,70 @@
+# week-10/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+# If you cannot run Python, fill the file by hand against the comments — a malformed
+# file costs you nothing if the content is there.
+
+schema: 1
+week: "10"
+
+student:
+  name: Aidar Bekzhan
+  student_id: 25B031167
+  github: aidarbekzhan
+
+assistant:
+  tool: Cursor
+  model: Claude 3.5 Sonnet
+  environment: cursor
+
+project:
+  starting_point: week-08
+  baseline_commit: 4e3ea8a
+  language: js
+  vitest: 4.1.12
+
+counts:
+  claims_challenged: 6
+  risks_registered: 6
+  risks_confirmed: 5
+  tests_final: 20
+  agents_lines_changed: 6
+
+audit:
+  level: 0
+
+decision:
+  top_two: [R1, R2]
+  mitigated: [R1, R2]
+  release: go
+
+checker:
+  # Numbers from YOUR last run of: python tests/check_audit.py
+  # They must add up to the number of checks it runs (31).
+  # Report them as they came out.
+  # A FAIL you report and explain in lab-report.md costs you nothing extra. A hidden one costs the criterion.
+  pass: 31
+  fail: 0
+  error: 0
+  commit: c7029ab
+  known_fails: []
+
+review_findings:
+  # Three or more. One line each, and each one names what it is about: a risk ID (R1...), a
+  # constraint (C1-C6), an AC, a readiness row (1a-3d), or a file.
+  # Worthless:        "The AI found some risks that were not real"
+  # Worth everything: "R3: the AI said canBook mutates bookings; src/booking.ts has no push since the BUG-B fix - unsupported"
+  - "R1: src/booking.js threw TypeError when bookings was omitted; mitigated by adding default parameter bookings = []"
+  - "R2: AGENTS.md contained missing script npm run test:unit; patched to npm test which exists in package.json"
+  - "C3: AGENTS.md incorrectly stated touching endpoints counts as overlap; patched to allow touching endpoints per AC4"
+
+honesty:
+  review_was_read_only: yes
+  agents_patch_approved_by_me: yes
+  outputs_unedited: yes
+  ai_usage_disclosed: yes
