@@ -1,12 +1,15 @@
-' diagrams/before.puml — the modules and components of your STARTING POINT and what depends on what.
-' Replace this stub. A component diagram is enough, for example:
-'
-'   @startuml
-'   component "App.tsx" as App
-'   component "booking.ts" as Booking
-'   App --> Booking : canBook()
-'   note right of App : rooms, times and the result all live here
-'   @enduml
-'
 @startuml
+package "Week-08 Starting Architecture" {
+  component [App.jsx] as App
+  component [availability.js] as Availability
+  component [booking.js] as Booking
+}
+
+App --> Booking : imports canBook()
+App --> Availability : imports checkRoomAvailability(), toMinutes(), formatMinutes()
+note right of App
+  Holds hardcoded INITIAL_ROOMS (only 2 rooms)
+  Evaluates availability twice (canBook & checkRoomAvailability)
+  Overrides room blocked state via local UI checkbox
+end note
 @enduml
