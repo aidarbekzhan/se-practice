@@ -1,12 +1,49 @@
 import { describe, test, expect } from 'vitest';
-import { canBook } from './booking';
+import { canBook, checkRoom } from './booking';
+import { filterRooms } from './filter';
 
-describe('canBook room availability suite (final improved)', () => {
+describe('Smart Campus Room Availability Suite (Evolved)', () => {
   const defaultNow = 540; // 09:00
   const defaultBlocked = false;
   const getBookings = () => [{ start: 600, end: 660 }]; // 10:00 - 11:00
 
-  test('T01 AC4: candidate touching after existing booking (660-720)', () => {
+  // Fixed isolated catalog for test repeatability (not coupled to demo data)
+  const TEST_ROOMS = [
+    {
+      id: 't-small',
+      name: 'Small Focus Room',
+      capacity: 4,
+      equipment: ['whiteboard'],
+      blocked: false,
+      bookings: [{ start: 600, end: 660 }] // 10:00 - 11:00
+    },
+    {
+      id: 't-standard',
+      name: 'Standard Seminar Room',
+      capacity: 12,
+      equipment: ['projector', 'whiteboard'],
+      blocked: false,
+      bookings: [{ start: 720, end: 780 }] // 12:00 - 13:00
+    },
+    {
+      id: 't-large',
+      name: 'Large Lecture Hall',
+      capacity: 40,
+      equipment: ['projector', 'whiteboard', 'audio'],
+      blocked: false,
+      bookings: []
+    },
+    {
+      id: 't-blocked',
+      name: 'Maintenance Room',
+      capacity: 20,
+      equipment: ['projector'],
+      blocked: true,
+      bookings: []
+    }
+  ];
+
+  test('T01 B3 AC4: candidate touching after existing booking (660-720)', () => {
     const result = canBook({
       start: 660,
       end: 720,
@@ -61,7 +98,7 @@ describe('canBook room availability suite (final improved)', () => {
     expect(result).toBe(false);
   });
 
-  test('T06 AC2: exactly 120 minutes booking (720-840)', () => {
+  test('T06 B1 AC2: exactly 120 minutes booking (720-840)', () => {
     const result = canBook({
       start: 720,
       end: 840,
@@ -72,7 +109,7 @@ describe('canBook room availability suite (final improved)', () => {
     expect(result).toBe(true);
   });
 
-  test('T07 AC2: booking longer than 120 minutes (720-841)', () => {
+  test('T07 B2 AC2: booking longer than 120 minutes (720-841)', () => {
     const result = canBook({
       start: 720,
       end: 841,
@@ -94,7 +131,7 @@ describe('canBook room availability suite (final improved)', () => {
     expect(result).toBe(true);
   });
 
-  test('T09 AC4: candidate partially overlapping existing booking (630-690)', () => {
+  test('T09 B4 AC4: candidate partially overlapping existing booking (630-690)', () => {
     const result = canBook({
       start: 630,
       end: 690,
@@ -223,5 +260,55 @@ describe('canBook room availability suite (final improved)', () => {
     });
     expect(result).toBe(true);
     expect(JSON.stringify(bookings)).toEqual(before);
+  });
+
+  test('F1 B5: filterRooms capacity greater than or equal to attendees includes room at exact boundary', () => {
+    const result = filterRooms(TEST_ROOMS, { attendees: 12, equipment: [] });
+    const ids = result.map(r => r.id);
+    expect(ids).toContain('t-standard');
+    expect(ids).toContain('t-large');
+    expect(ids).toContain('t-blocked');
+    expect(ids).not.toContain('t-small');
+  });
+
+  test('F1 B6: filterRooms capacity one below attendees excludes room from results', () => {
+    const result = filterRooms(TEST_ROOMS, { attendees: 13, equipment: [] });
+    const ids = result.map(r => r.id);
+    expect(ids).not.toContain('t-standard');
+    expect(ids).toContain('t-large');
+    expect(ids).toContain('t-blocked');
+  });
+
+  test('F2: filterRooms requires room to contain ALL selected equipment items', () => {
+    const result = filterRooms(TEST_ROOMS, { attendees: 0, equipment: ['projector', 'whiteboard'] });
+    const ids = result.map(r => r.id);
+    expect(ids).toEqual(['t-standard', 't-large']);
+  });
+
+  test('F3: checkRoom always returns false for blocked room regardless of request time', () => {
+    const result = checkRoom(TEST_ROOMS, 't-blocked', { start: 660, end: 720, now: defaultNow });
+    expect(result).toBe(false);
+  });
+
+  test('F4: filterRooms returns empty list when no room satisfies required criteria', () => {
+    const result = filterRooms(TEST_ROOMS, { attendees: 100, equipment: ['audio'] });
+    expect(result).toEqual([]);
+  });
+
+  test('F5: checkRoom uses chosen room own bookings and evaluates room-specific conflicts', () => {
+    // 10:00 - 11:00 (600-660) conflicts with t-small, but is available in t-large
+    const resSmall = checkRoom(TEST_ROOMS, 't-small', { start: 600, end: 660, now: defaultNow });
+    const resLarge = checkRoom(TEST_ROOMS, 't-large', { start: 600, end: 660, now: defaultNow });
+    expect(resSmall).toBe(false);
+    expect(resLarge).toBe(true);
+  });
+
+  test('INT: filterRooms narrows catalog and checkRoom validates slot on selected room', () => {
+    const matched = filterRooms(TEST_ROOMS, { attendees: 10, equipment: ['projector'] });
+    expect(matched.length).toBeGreaterThan(0);
+    const selected = matched[0];
+    const isAvailable = checkRoom(matched, selected.id, { start: 600, end: 660, now: defaultNow });
+    // t-standard has bookings at 720-780, so 600-660 is available
+    expect(isAvailable).toBe(true);
   });
 });

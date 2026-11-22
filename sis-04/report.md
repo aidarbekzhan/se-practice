@@ -100,17 +100,17 @@ Please analyze the codebase and identify at least three maintainability risks wi
 
 ### 4.1 What I added
 
-(write here)
+I added a structured catalog of 5 fictional rooms in `src/rooms.js` equipped with projectors, whiteboards, displays, computers, microphones, and video-conferencing units. The user can filter the catalog on the page by specifying minimum required attendee capacity (F1) and selecting required equipment checkboxes (F2). If no room meets the combined criteria, a prominent red empty-state notification appears explaining that no catalog rooms match (F4). When the user selects a different matching room, the availability check and existing bookings table refresh immediately for that chosen room's schedule (F5).
 
 ### 4.2 Demonstration
 
 | Screenshot | What it shows |
 | --- | --- |
-| `evidence/filter-match.png` | (write here) |
-| `evidence/filter-empty.png` | (write here) |
-| `evidence/switch-a.png` | (write here) |
-| `evidence/switch-b.png` | (write here) |
-| `evidence/narrow.png` | (write here) |
+| `evidence/filter-match.png` | Filter with 25 attendees and projector leaving only two matching high-capacity seminar rooms |
+| `evidence/filter-empty.png` | Filter with 100 attendees matching zero rooms and showing the red empty-state feedback |
+| `evidence/switch-a.png` | Room 101 selected for 10:00 to 11:00 showing an Unavailable decision due to booking overlap |
+| `evidence/switch-b.png` | Same times 10:00 to 11:00 with Room 102 selected showing an Available decision |
+| `evidence/narrow.png` | Responsive mobile portrait view at 390px width with accessible form controls and clean layout |
 
 ## 5. Refactoring (Task 3)
 
@@ -118,23 +118,25 @@ Please analyze the codebase and identify at least three maintainability risks wi
 
 | Module or component | Responsibility |
 | --- | --- |
-| `src/rooms.ts` | (write here) |
-| `src/booking.ts` | (write here) |
-| `src/filter.ts` | (write here) |
-| (write here) | (write here) |
+| `src/rooms.js` | Static catalog data exporting ROOMS array with room IDs, capacities, equipment, blocked flags, and bookings |
+| `src/booking.js` | Core availability decision engine hosting pure canBook (AC1-AC5) and room lookup checkRoom (F3, F5) |
+| `src/filter.js` | Pure filtering logic filterRooms enforcing attendee capacity (F1) and equipment subset matching (F2) |
+| `src/availability.js` | Time format conversion utilities (toMinutes, formatMinutes) without any business rule logic |
+| `src/App.jsx` | React UI presentation component managing input state, invoking filterRooms, and displaying results |
 
 ### 5.2 Design decisions
 
 | Decision | Alternative I did not take | Why |
 | --- | --- | --- |
-| (write here) | (write here) | (write here) |
-| (write here) | (write here) | (write here) |
+| Retain blocked rooms in the catalog dropdown marked with a [BLOCKED] label rather than filtering them out completely. | Automatically excluding blocked rooms during filterRooms execution. | Allows users to see that a room exists on campus and understand that it is currently under maintenance or administratively locked (AC3/F3) rather than wondering why the room disappeared from the campus catalog. |
+| Keep canBook signature purely positional/destructured and create a separate checkRoom dispatcher. | Modifying canBook parameter shape to accept a Room object directly. | Preserves regression compatibility with Practice #07 and #08 tests (AC1-AC5) while isolating room lookup and parameter mapping into checkRoom (F3, F5). |
 
 ### 5.3 Duplication removed
 
 | Before (file / function, what was repeated) | After (where it lives now) |
 | --- | --- |
-| (write here) | (write here) |
+| `app/src/availability.js`, `checkRoomAvailability()` repeated 120-min duration, interval order, and overlap loops | Removed from `availability.js`; centralized in `src/booking.js` (`canBook()` and `checkRoom()`) |
+| `app/src/App.jsx`, `handleCheck()` evaluated both `canBook` and `checkRoomAvailability` with local `isBlocked` override | Replaced with a single call to `checkRoom(ROOMS, roomId, request)` using room's catalog `blocked` status |
 
 ## 6. Automated tests (Task 4)
 
@@ -142,44 +144,53 @@ Please analyze the codebase and identify at least three maintainability risks wi
 
 | ID | Test title (as in the file) | Input → expected |
 | --- | --- | --- |
-| AC1 | (write here) | (write here) |
-| AC2 | (write here) | (write here) |
-| AC3 | (write here) | (write here) |
-| AC4 | (write here) | (write here) |
-| AC5 | (write here) | (write here) |
-| F1 | (write here) | (write here) |
-| F2 | (write here) | (write here) |
-| F3 | (write here) | (write here) |
-| F4 | (write here) | (write here) |
-| F5 | (write here) | (write here) |
-| B1 | (write here) | (write here) |
-| B2 | (write here) | (write here) |
-| B3 | (write here) | (write here) |
-| B4 | (write here) | (write here) |
-| B5 | (write here) | (write here) |
-| B6 | (write here) | (write here) |
-| INT | (write here) | (write here) |
+| AC1 | T02 AC1: candidate starts at current time (540-570) | start=540, end=570, now=540 → false |
+| AC2 | T06 B1 AC2: exactly 120 minutes booking (720-840) | start=720, end=840 (120 min) → true |
+| AC3 | T13 AC3: booking request on blocked room (660-720) | blocked=true → false |
+| AC4 | T01 B3 AC4: candidate touching after existing booking (660-720) | start=660 after booking 600-660 → true |
+| AC5 | AC5: available request does not mutate bookings array | bookings array checked before/after → JSON unchanged |
+| F1 | F1 B5: filterRooms capacity greater than or equal to attendees includes room at exact boundary | attendees=12 against cap 12 room → included |
+| F2 | F2: filterRooms requires room to contain ALL selected equipment items | req=['projector', 'whiteboard'] → only rooms with both |
+| F3 | F3: checkRoom always returns false for blocked room regardless of request time | checkRoom on 't-blocked' → false |
+| F4 | F4: filterRooms returns empty list when no room satisfies required criteria | attendees=100 → empty array [] |
+| F5 | F5: checkRoom uses chosen room own bookings and evaluates room-specific conflicts | slot 600-660 on t-small vs t-large → false vs true |
+| B1 | T06 B1 AC2: exactly 120 minutes booking (720-840) | duration=120 min → toBe(true) |
+| B2 | T07 B2 AC2: booking longer than 120 minutes (720-841) | duration=121 min → toBe(false) |
+| B3 | T01 B3 AC4: candidate touching after existing booking (660-720) | touching at 660 → toBe(true) |
+| B4 | T09 B4 AC4: candidate partially overlapping existing booking (630-690) | overlap 630-690 with 600-660 → toBe(false) |
+| B5 | F1 B5: filterRooms capacity greater than or equal to attendees includes room at exact boundary | attendees=12 for cap 12 → included |
+| B6 | F1 B6: filterRooms capacity one below attendees excludes room from results | attendees=13 for cap 12 → excluded |
+| INT | INT: filterRooms narrows catalog and checkRoom validates slot on selected room | filterRooms then checkRoom on matched[0] → true |
 
 ### 6.2 Commands
 
-```text
-(paste here)
+```bash
+cd app
+npm install
+npx vitest run
 ```
 
 ### 6.3 Final run
 
 ```text
-(paste here)
+ RUN  v4.1.12 C:/Users/Aidar/se-practice/sis-04/app
+
+ ✓ src/booking.test.js (26 tests) 21ms
+
+ Test Files  1 passed (1)
+      Tests  26 passed (26)
+   Start at  21:39:29
+   Duration  616ms (transform 92ms, setup 0ms, import 146ms, tests 21ms, environment 0ms)
 ```
 
 ## 7. Quality evaluation (Task 5)
 
 | Measure | Original | Final | How I obtained it |
 | --- | --- | --- | --- |
-| Automated tests passed / total | (write here) | (write here) | (write here) |
-| Duplicated logic locations removed | (write here) | (write here) | (write here) |
-| Code structure: modules and their responsibilities | (write here) | (write here) | (write here) |
-| Remaining limitation | (write here) | (write here) | (write here) |
+| Automated tests passed / total | 19/19 | 26/26 | Baseline 1.1 and final 6.3 Vitest test run summaries |
+| Duplicated logic locations removed | 0 | 2 | Counted removed duplicated validation locations documented in section 5.3 |
+| Code structure: modules and their responsibilities | 3 modules (App.jsx, booking.js, availability.js) | 5 modules (rooms.js, filter.js, booking.js, availability.js, App.jsx) | Compared git ls-files app/src between baseline and final commits |
+| Remaining limitation | Single-day time window only | Multi-day or recurring reservations across calendar dates are not supported | Observed system design: start and end times are constrained to single 0-1440 minute day cycle |
 
 ## 8. AI evidence appendix
 
@@ -333,4 +344,10 @@ export function checkRoom(rooms, roomId, request) {
 
 ## 10. AI reflection (Task 6)
 
-(write here)
+For this assignment, I provided the assistant with our Week 08 repository map, the preserved criteria AC1–AC6, the new feature requirements F1–F5, and strict project constraints against databases and external APIs. I specifically asked for maintainability risks and an incremental plan rather than a code rewrite.
+
+The assistant was very useful in structuring the step-by-step refactoring sequence and defining boundary cases for B1–B6. However, it generated two problematic suggestions: first, it proposed modifying `canBook` to accept a room object, which would break backward compatibility with Practice 08 tests; second, its initial filtering recommendation used `equipment.some()`, which would incorrectly match rooms having only a subset of requested gear instead of all required items (F2).
+
+I personally verified that `canBook` remained pure and untouched, that `filterRooms` used `.every()` to enforce full equipment matching, and that `checkRoom` correctly dispatched availability using each room's own bookings without mutating catalog state. Automated testing heavily influenced my engineering workflow: I executed Vitest after each isolated modification, ensuring that regression tests AC1–AC5 stayed green while developing F1–F5 and boundary checks B1–B6. When boundary test B4 caught an edge case in minute-level overlaps, having deterministic tests gave me confidence that touching intervals (B3) remained valid.
+
+Next, I would improve the application by supporting multi-day bookings across calendar dates and allowing users to dynamically add new reservations to the in-memory room schedules while persisting them cleanly.
